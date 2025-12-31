@@ -46,7 +46,7 @@
             position: absolute;
             top: 0;
             right: 0;
-            z-index: 9999; /* Max Z-Index to ensure it floats above everything */
+            z-index: 9999;
             padding: 10px;
         }
         .btn-quit {
@@ -213,6 +213,7 @@
 </head>
 <body>
 
+    <!-- VIEW: SETUP -->
     <div id="view-setup">
         <div style="text-align:center; margin-bottom:30px; margin-top:20px;">
             <svg width="70" height="70" viewBox="0 0 100 100" fill="none">
@@ -220,21 +221,59 @@
                 <path d="M50 25V50L70 70" stroke="#e0fa3e" stroke-width="5" stroke-linecap="round"/>
             </svg>
             <h1 style="margin-top:10px; margin-bottom:0;">ROX TRACKER</h1>
-            <p style="color: var(--dim-text); margin:5px 0 0 0;">Hyrox Workout Tracker</p>
+            <p style="color: var(--dim-text); margin:5px 0 0 0;">Hyrox Workout Assistant</p>
         </div>
         
         <div style="background: var(--card-bg); padding:20px; border-radius:16px; margin-bottom:20px;">
-            <label>Workout Structure</label>
+            <label>Circuit planner</label>
             <div class="input-row" style="align-items: center;">
                 <input type="number" id="input-num-exercises" value="4" min="1" max="12" style="margin-bottom:0;">
                 <span style="color:white; font-weight:bold;">Exercises</span>
             </div>
+            <button type="button" class="primary" onclick="validateAndGenerateConfig()">Plan Workout</button>
+            <button type="button" class="secondary" onclick="checkForSavedWorkout()">Resume Session</button>
         </div>
 
-        <button type="button" class="primary" onclick="validateAndGenerateConfig()">Plan Workout</button>
-        <button type="button" class="secondary" onclick="checkForSavedWorkout()">Resume Session</button>
+        <div style="background: #2c2c2e; padding:15px; border-radius:16px;">
+            <label>Log External</label>
+            <button type="button" style="background:#444; margin-top:5px;" onclick="showManualEntry()">Manual Entry</button>
+        </div>
     </div>
 
+    <!-- VIEW: MANUAL ENTRY -->
+    <div id="view-manual" class="hidden full-screen" style="justify-content: flex-start;">
+        <div class="view-header"><button type="button" class="btn-quit" onclick="showView('view-setup')">×</button></div>
+        
+        <h3 style="margin-top:10px;">Log Activity</h3>
+
+        <div class="input-row">
+            <div>
+                <label>Type</label>
+                <select id="manual-type" onchange="renderManualForm()">
+                    <option value="run">Run</option>
+                    <option value="gym">Gym Session</option>
+                    <option value="other">Other</option>
+                </select>
+            </div>
+            <div>
+                <label>Date</label>
+                <input type="date" id="manual-date">
+            </div>
+        </div>
+
+        <div id="manual-form-container" style="flex:1; overflow-y:auto; margin-bottom:20px;">
+            <!-- DYNAMIC CONTENT -->
+        </div>
+
+        <label>Reflections</label>
+        <textarea id="manual-notes" rows="3" placeholder="How was it?"></textarea>
+
+        <button type="button" class="primary" onclick="generateManualJSON()">Copy JSON</button>
+        <p id="manual-feedback" style="text-align: center; color: var(--safe-color); display: none; margin-top:10px; font-weight:bold;">Copied!</p>
+    </div>
+
+
+    <!-- VIEW: CONFIG -->
     <div id="view-config" class="hidden full-screen" style="justify-content: flex-start;">
         <div class="view-header"><button type="button" class="btn-quit" onclick="resetApp()">×</button></div>
         
@@ -247,6 +286,7 @@
         </div>
     </div>
 
+    <!-- VIEW: PREP INSTRUCTIONS -->
     <div id="view-prep" class="hidden full-screen" style="justify-content: flex-start;">
         <div class="view-header"><button type="button" class="btn-quit" onclick="resetApp()">×</button></div>
 
@@ -272,6 +312,7 @@
         </div>
     </div>
 
+    <!-- VIEW: TRACKER -->
     <div id="view-tracker" class="hidden full-screen">
         <div class="view-header"><button type="button" class="btn-quit" onclick="resetApp()">×</button></div>
 
@@ -288,6 +329,7 @@
         <button type="button" class="primary huge" id="btn-next" onclick="nextSegment()">NEXT</button>
     </div>
 
+    <!-- VIEW: SUMMARY -->
     <div id="view-summary" class="hidden full-screen" style="justify-content: flex-start;">
         <div class="view-header"><button type="button" class="btn-quit" onclick="resetApp()">×</button></div>
 
@@ -306,8 +348,7 @@
     </div>
 
     <script>
-        // --- CONFIG DATA ---
-        // distance_only ensures Weight input is hidden for Burpees
+        // --- CONSTANTS ---
         const EXERCISE_TYPES = {
             cardio: { units: 'm', hasDamper: true, hasWeight: false },
             weighted_carry: { units: 'm', hasDamper: false, hasWeight: true },
@@ -327,19 +368,10 @@
             { name: "Wall Balls", type: "weighted_reps", defaultVal: 100, defaultWt: 6 }
         ];
 
-        let state = {
-            status: 'idle', 
-            config: {},
-            segments: [], 
-            currentSegmentIndex: 0,
-            startTime: null,      
-            segmentStartTime: null, 
-            history: [] 
-        };
-
+        let state = { status: 'idle', config: {}, segments: [], currentSegmentIndex: 0, startTime: null, segmentStartTime: null, history: [] };
         let timerInterval = null;
         let wakeLock = null;
-        let isResetting = false; // FLAG TO PREVENT AUTO-SAVE RESURRECTION
+        let isResetting = false;
 
         // --- LIFECYCLE ---
         document.addEventListener("visibilitychange", async () => {
@@ -355,29 +387,118 @@
             try { if ('wakeLock' in navigator) wakeLock = await navigator.wakeLock.request('screen'); } catch (e) {}
         }
 
-        // Global Reset Function
         window.resetApp = function() {
             if(confirm("Exit and discard current workout?")) {
-                // 1. Set flag to block the 'saveState' call that happens on unload
                 isResetting = true;
-                
-                // 2. Kill the data
                 localStorage.removeItem('rox_pro_state');
-                
-                // 3. Stop processes
                 clearInterval(timerInterval);
                 if (wakeLock) wakeLock.release();
-
-                // 4. Force Reload (safest way to clear all DOM/Memory)
                 location.reload();
             }
         };
 
-        // --- STEP 1: CONFIG ---
+        // --- MANUAL ENTRY LOGIC ---
+
+        function showManualEntry() {
+            document.getElementById('manual-date').valueAsDate = new Date();
+            renderManualForm();
+            showView('view-manual');
+        }
+
+        function renderManualForm() {
+            const type = document.getElementById('manual-type').value;
+            const container = document.getElementById('manual-form-container');
+            let html = '';
+
+            if (type === 'run') {
+                html = `
+                    <label>Run Details</label>
+                    <div class="input-row">
+                        <div><input type="text" id="man-run-dist" placeholder="Distance (km)"></div>
+                        <div><input type="text" id="man-run-time" placeholder="Time (Total)"></div>
+                    </div>
+                `;
+            } else if (type === 'gym') {
+                html = `
+                    <label>Number of exercises</label>
+                    <div class="input-row" style="margin-bottom:15px;">
+                        <input type="number" id="man-gym-count" value="3" placeholder="Num Exercises">
+                        <button type="button" class="secondary" style="margin-top:0;" onclick="renderGymInputs()">Set Fields</button>
+                    </div>
+                    <div id="man-gym-inputs"></div>
+                `;
+            } else {
+                html = `<p style="color:#888; text-align:center;">Just add notes below.</p>`;
+            }
+            container.innerHTML = html;
+            if(type === 'gym') renderGymInputs();
+        }
+
+        function renderGymInputs() {
+            const count = parseInt(document.getElementById('man-gym-count').value) || 1;
+            const container = document.getElementById('man-gym-inputs');
+            let html = '';
+            for(let i=0; i<count; i++) {
+                html += `
+                    <div style="background:#2c2c2e; padding:10px; margin-bottom:10px; border-radius:10px; border:1px solid #333;">
+                        <input type="text" id="man-gym-name-${i}" placeholder="Exercise Name" style="font-weight:bold; color:var(--accent-color);">
+                        <div class="input-row">
+                            <input type="number" id="man-gym-sets-${i}" placeholder="Sets">
+                            <input type="text" id="man-gym-reps-${i}" placeholder="Reps">
+                            <input type="text" id="man-gym-wt-${i}" placeholder="Wt (kg)">
+                        </div>
+                    </div>
+                `;
+            }
+            container.innerHTML = html;
+        }
+
+        function generateManualJSON() {
+            const type = document.getElementById('manual-type').value;
+            const date = document.getElementById('manual-date').value;
+            const notes = document.getElementById('manual-notes').value;
+            let data = {};
+
+            if (type === 'run') {
+                data = {
+                    distance: document.getElementById('man-run-dist').value,
+                    time: document.getElementById('man-run-time').value
+                };
+            } else if (type === 'gym') {
+                const count = parseInt(document.getElementById('man-gym-count').value) || 0;
+                let exercises = [];
+                for(let i=0; i<count; i++) {
+                    exercises.push({
+                        name: document.getElementById(`man-gym-name-${i}`).value,
+                        sets: document.getElementById(`man-gym-sets-${i}`).value,
+                        reps: document.getElementById(`man-gym-reps-${i}`).value,
+                        weight: document.getElementById(`man-gym-wt-${i}`).value
+                    });
+                }
+                data = { exercises: exercises };
+            }
+
+            // STANDARDISED STRUCTURE
+            const payload = {
+                meta: { type: "Manual Log", subtype: type, date: date },
+                reflections: notes,
+                data: data
+            };
+
+            const content = `Manual Log Entry:\n\n${JSON.stringify(payload, null, 2)}`;
+            
+            navigator.clipboard.writeText(content).then(() => {
+                const fb = document.getElementById('manual-feedback');
+                fb.style.display = 'block';
+                setTimeout(() => fb.style.display = 'none', 3000);
+            });
+        }
+
+        // --- MAIN APP LOGIC ---
+
         function validateAndGenerateConfig() {
             const count = parseInt(document.getElementById('input-num-exercises').value);
             if (count > 12) { alert("Max 12 exercises allowed."); return; }
-            
             const container = document.getElementById('config-container');
             let html = [];
 
@@ -386,13 +507,9 @@
                     <div style="background:#2c2c2e; padding:15px; margin-bottom:15px; border-radius:12px; border:1px solid #333;">
                         <label style="color:var(--accent-color)">RUN ${i + 1}</label>
                         <div class="input-row input-group">
-                            <div>
-                                <label>Target Pace</label>
-                                <input type="text" id="conf-run-${i}" value="05:00" placeholder="Pace">
-                            </div>
+                            <div><label>Target Pace</label><input type="text" id="conf-run-${i}" value="05:00" placeholder="Pace"></div>
                             <div style="padding-top:32px; font-size:0.9rem; color:#666; flex:0 0 50px;">min/km</div>
                         </div>
-                        
                         <label style="margin-top:10px; color:white;">EXERCISE ${i + 1}</label>
                         <select id="conf-ex-idx-${i}" onchange="renderExInputs(${i}, this.value)" style="margin-bottom:15px;">
                             ${EXERCISES.map((ex, idx) => `<option value="${idx}" ${idx === i % 8 ? 'selected' : ''}>${ex.name}</option>`).join('')}
@@ -404,12 +521,7 @@
             html.push(`
                 <div style="background:#2c2c2e; padding:15px; margin-bottom:15px; border-radius:12px; border:1px solid #333;">
                     <label style="color:var(--accent-color)">FINAL RUN (${count + 1})</label>
-                    <div class="input-row">
-                        <div>
-                            <label>Target Pace</label>
-                            <input type="text" id="conf-run-${count}" value="05:00">
-                        </div>
-                    </div>
+                    <div class="input-row"><div><label>Target Pace</label><input type="text" id="conf-run-${count}" value="05:00"></div></div>
                 </div>
             `);
 
@@ -422,44 +534,14 @@
             const container = document.getElementById(`conf-ex-inputs-${index}`);
             const ex = EXERCISES[exIdx];
             const type = EXERCISE_TYPES[ex.type];
-            
             let html = `<div class="input-row">`;
-            
-            // Value Input
-            html += `
-                <div>
-                    <label>${type.units === 'm' ? 'Distance (m)' : 'Reps'}</label>
-                    <input type="number" id="ex-val-${index}" value="${ex.defaultVal}">
-                </div>
-            `;
-
-            // Weight Input (Only if type allows it)
-            if (type.hasWeight) {
-                html += `
-                    <div>
-                        <label>Weight (kg)</label>
-                        <input type="number" id="ex-wt-${index}" value="${ex.defaultWt}">
-                    </div>
-                `;
-            }
-
-            // Damper Input
-            if (type.hasDamper) {
-                 html += `
-                    <div>
-                        <label>Damper</label>
-                        <select id="ex-damp-${index}" style="margin-bottom:0">
-                            ${[1,2,3,4,5,6,7,8,9,10].map(n=>`<option ${n===6?'selected':''}>${n}</option>`).join('')}
-                        </select>
-                    </div>
-                `;
-            }
-            
+            html += `<div><label>${type.units === 'm' ? 'Distance (m)' : 'Reps'}</label><input type="number" id="ex-val-${index}" value="${ex.defaultVal}"></div>`;
+            if (type.hasWeight) html += `<div><label>Weight (kg)</label><input type="number" id="ex-wt-${index}" value="${ex.defaultWt}"></div>`;
+            if (type.hasDamper) html += `<div><label>Damper</label><select id="ex-damp-${index}" style="margin-bottom:0">${[1,2,3,4,5,6,7,8,9,10].map(n=>`<option ${n===6?'selected':''}>${n}</option>`).join('')}</select></div>`;
             html += `</div>`;
             container.innerHTML = html;
         }
 
-        // --- STEP 2: BUILD & PREP ---
         function finishSetup() {
             try {
                 const count = parseInt(document.getElementById('input-num-exercises').value);
@@ -471,17 +553,12 @@
                     const exIdx = document.getElementById(`conf-ex-idx-${i}`).value;
                     const exDef = EXERCISES[exIdx];
                     const val = document.getElementById(`ex-val-${i}`).value;
-                    
                     let detailStr = `${val}${EXERCISE_TYPES[exDef.type].units}`;
-                    
-                    // Optional Check
                     let wtEl = document.getElementById(`ex-wt-${i}`);
                     if(wtEl) detailStr += ` @ ${wtEl.value}kg`;
-                    
                     let dampEl = document.getElementById(`ex-damp-${i}`);
                     if(dampEl) detailStr += ` (Damp: ${dampEl.value})`;
 
-                    // Prep List UI
                     prepHtml.push(`
                         <div class="prep-item">
                             <div class="prep-time">Run ${i+1}</div>
@@ -493,57 +570,15 @@
                         </div>
                     `);
 
-                    // 1. RUN
-                    state.segments.push({
-                        type: 'run',
-                        name: `Run ${i+1}`,
-                        detail: `Target: ${runPace} min/km`,
-                        instruction: "Start timer when treadmill is AT SPEED.", 
-                        target: runPace
-                    });
-
-                    // 2. TRANSITION
-                    state.segments.push({
-                        type: 'transition',
-                        subtype: 'to_exercise',
-                        name: 'Transition',
-                        detail: `Move to: ${exDef.name}`,
-                        nextUp: exDef.name
-                    });
-
-                    // 3. EXERCISE
-                    state.segments.push({
-                        type: 'exercise',
-                        name: exDef.name,
-                        detail: detailStr
-                    });
-
-                    // 4. TRANSITION TO RUN
-                     state.segments.push({
-                        type: 'transition',
-                        subtype: 'to_run',
-                        name: 'Transition',
-                        detail: `Move to Treadmill`,
-                        instruction: `Ramp to speed. Press NEXT when ready to start run.`
-                    });
+                    state.segments.push({ type: 'run', name: `Run ${i+1}`, detail: `Target: ${runPace} min/km`, instruction: "Start timer when treadmill is AT SPEED.", target: runPace });
+                    state.segments.push({ type: 'transition', subtype: 'to_exercise', name: 'Transition', detail: `Move to: ${exDef.name}`, nextUp: exDef.name });
+                    state.segments.push({ type: 'exercise', name: exDef.name, detail: detailStr });
+                    state.segments.push({ type: 'transition', subtype: 'to_run', name: 'Transition', detail: `Move to Treadmill`, instruction: `Ramp to speed. Press NEXT when ready to start run.` });
                 }
 
-                // Final Run
                 const lastRunPace = document.getElementById(`conf-run-${count}`).value;
-                prepHtml.push(`
-                    <div class="prep-item" style="border:none">
-                        <div class="prep-time">Run ${count+1}</div>
-                        <div class="prep-desc">${lastRunPace} <small>min/km</small></div>
-                    </div>
-                `);
-                
-                state.segments.push({
-                    type: 'run',
-                    name: `Run ${count+1}`,
-                    detail: `Target: ${lastRunPace} min/km`,
-                    instruction: "Start timer when treadmill is AT SPEED.",
-                    target: lastRunPace
-                });
+                prepHtml.push(`<div class="prep-item" style="border:none"><div class="prep-time">Run ${count+1}</div><div class="prep-desc">${lastRunPace} <small>min/km</small></div></div>`);
+                state.segments.push({ type: 'run', name: `Run ${count+1}`, detail: `Target: ${lastRunPace} min/km`, instruction: "Start timer when treadmill is AT SPEED.", target: lastRunPace });
 
                 document.getElementById('prep-list').innerHTML = prepHtml.join('');
                 saveState();
@@ -551,7 +586,6 @@
             } catch (e) { alert("Setup Error. Check inputs."); }
         }
 
-        // --- TRACKER ---
         function startWorkout() {
             requestWakeLock();
             state.status = 'active';
@@ -559,7 +593,6 @@
             state.startTime = new Date().getTime();
             state.segmentStartTime = new Date().getTime();
             state.history = [];
-            
             updateTrackerUI();
             startTimer();
             showView('view-tracker');
@@ -583,35 +616,34 @@
 
         function updateTrackerUI() {
             const seg = state.segments[state.currentSegmentIndex];
-            const nextSeg = state.segments[state.currentSegmentIndex + 1];
-
+            
+            // Progress Calc
             const realSteps = state.segments.filter(s => s.type !== 'transition').length;
             const currentRealStep = state.segments.slice(0, state.currentSegmentIndex + 1).filter(s => s.type !== 'transition').length;
-            
             const progText = seg.type === 'transition' ? "TRANSITION" : `ACTIVITY ${currentRealStep} / ${realSteps}`;
             document.getElementById('tracker-progress').innerText = progText;
             document.getElementById('tracker-activity').innerText = seg.name.toUpperCase();
             
-            // Detail Logic (Hide instruction for Run 1)
             let detailText = seg.detail;
-            if (seg.instruction && seg.type === 'run') {
-                if (seg.name !== 'Run 1') detailText = seg.instruction;
-            } else if (seg.instruction) {
-                detailText = seg.instruction;
-            }
+            if (seg.instruction && seg.type === 'run' && seg.name !== 'Run 1') detailText = seg.instruction;
+            else if (seg.instruction && seg.type !== 'run') detailText = seg.instruction;
             document.getElementById('tracker-details').innerText = detailText;
 
-            // Next Logic
-            let nextText = "FINISH";
-            if (nextSeg) {
-                nextText = nextSeg.type === 'transition' ? "Next: Transition" : `Next: ${nextSeg.name}`;
+            // --- SMART NEXT LOOKAHEAD ---
+            // Find the next segment that is NOT a transition
+            let nextActivity = "FINISH";
+            for (let i = state.currentSegmentIndex + 1; i < state.segments.length; i++) {
+                const s = state.segments[i];
+                if (s.type === 'run' || s.type === 'exercise') {
+                    nextActivity = `Next: ${s.name}`;
+                    break;
+                }
             }
-            document.getElementById('tracker-next').innerText = nextText;
+            document.getElementById('tracker-next').innerText = nextActivity;
 
             // Styling
             const btn = document.getElementById('btn-next');
             const bg = document.body;
-            
             if (seg.type === 'run') {
                 bg.style.backgroundColor = 'black';
                 document.documentElement.style.setProperty('--text-color', 'white');
@@ -637,7 +669,7 @@
                 const mins = Math.floor(diff / 60).toString().padStart(2, '0');
                 const secs = (diff % 60).toString().padStart(2, '0');
                 document.getElementById('main-timer').innerText = `${mins}:${secs}`;
-            }, 1000); // Check every second for battery saving, but UI updates visually
+            }, 1000);
         }
 
         function finishWorkout() {
@@ -649,7 +681,6 @@
             showView('view-summary');
         }
 
-        // --- SUMMARY & EXPORT ---
         function secToTime(seconds) {
             const m = Math.floor(seconds / 60);
             const s = Math.floor(seconds % 60).toString().padStart(2, '0');
@@ -686,11 +717,11 @@
         function exportData(format) {
             const notes = document.getElementById('notes-area').value;
             let content = "";
-            
             if (format === 'json') {
+                // STANDARDISED STRUCTURE MATCHING MANUAL LOG
                 const payload = {
-                    date: new Date().toLocaleDateString('en-GB'),
-                    notes: notes,
+                    meta: { type: "ROX Session", date: new Date().toLocaleDateString('en-GB') },
+                    reflections: notes,
                     segments: state.history.map(h => ({
                         segment: h.segment.name,
                         type: h.segment.type,
@@ -699,25 +730,16 @@
                         time: secToTime(h.duration)
                     }))
                 };
-                content = `Analyze this workout data:\n\n${JSON.stringify(payload, null, 2)}`;
+                content = `ROX Session Log:\n\n${JSON.stringify(payload, null, 2)}`;
             } else {
-                // CSV Export
                 const date = new Date().toLocaleDateString('en-GB');
                 const total = state.history.reduce((a,b)=>a+b.duration,0);
                 const safeNotes = notes.replace(/,/g, ';').replace(/\n/g, ' ');
-                
-                // Header: Date, Total, Notes, [SegName, SegTime]...
                 const row = [date, secToTime(total), safeNotes];
-                
-                state.history.forEach(h => {
-                    row.push(h.segment.name);
-                    row.push(secToTime(h.duration));
-                });
-                
+                state.history.forEach(h => { row.push(h.segment.name); row.push(secToTime(h.duration)); });
                 content = row.join(",");
-                alert("CSV Row Copied (Includes Reflections).");
+                alert("CSV Row Copied.");
             }
-
             navigator.clipboard.writeText(content).then(() => {
                 const fb = document.getElementById('copy-feedback');
                 fb.style.display = 'block';
@@ -732,7 +754,6 @@
         }
 
         function saveState() { 
-            // PREVENT SAVING IF WE ARE IN THE MIDDLE OF A RESET
             if(isResetting) return;
             try { localStorage.setItem('rox_pro_state', JSON.stringify(state)); } catch(e){} 
         }
