@@ -70,6 +70,7 @@
         /* Forms */
         label { display: block; margin-bottom: 6px; font-weight: 600; color: var(--dim-text); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; }
         
+        /* Global Input Styling */
         input, select, textarea {
             background: #2c2c2e;
             border: 1px solid var(--border-color);
@@ -79,7 +80,8 @@
             border-radius: 10px;
             width: 100%;
             box-sizing: border-box;
-            -webkit-appearance: none;
+            -webkit-appearance: none; /* This makes text boxes look flat */
+            appearance: none;
             margin-bottom: 0; 
         }
         
@@ -88,6 +90,61 @@
         .input-row > div { flex: 1; }
 
         input:focus, select:focus, textarea:focus { border-color: var(--accent-color); outline: none; }
+
+        /* CONFIG CARD STYLING */
+        .config-card {
+            background: #2c2c2e; 
+            padding: 15px; 
+            margin-bottom: 15px; 
+            border-radius: 12px; 
+            border: 1px solid #333;
+        }
+
+        /* Run Inputs Dimming Wrapper */
+        .run-inputs-wrapper {
+            transition: all 0.2s ease;
+        }
+        .run-inputs-wrapper.disabled {
+            opacity: 0.15;
+            pointer-events: none; 
+            filter: grayscale(1);
+        }
+
+        /* Custom Checkbox for Run Toggle */
+        .run-toggle-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .run-checkbox {
+            /* FORCE BROWSER TO RENDER A NATIVE CHECKBOX */
+            -webkit-appearance: checkbox !important;
+            appearance: checkbox !important;
+            
+            width: 28px;
+            height: 28px;
+            accent-color: var(--accent-color);
+            cursor: pointer;
+            margin: 0;
+            border-radius: 4px; /* Slight rounding if browser supports it */
+        }
+        
+        .run-status-text {
+            font-size: 0.8rem;
+            font-weight: 800;
+            margin-right: 10px;
+            text-transform: uppercase;
+        }
+        .status-enabled { color: var(--safe-color); }
+        .status-skipped { color: var(--danger-color); }
+
+        .divider {
+            height: 1px;
+            background: #444;
+            margin: 20px 0 15px 0;
+        }
 
         /* Buttons */
         button {
@@ -138,6 +195,7 @@
         .prep-time { width: 80px; color: var(--dim-text); font-variant-numeric: tabular-nums; }
         .prep-desc { flex: 1; color: white; font-weight: 500; }
         .prep-highlight { color: var(--accent-color); }
+        .strike { text-decoration: line-through; opacity: 0.5; }
 
         /* Timer View */
         .timer-display {
@@ -213,7 +271,6 @@
 </head>
 <body>
 
-    <!-- VIEW: SETUP -->
     <div id="view-setup">
         <div style="text-align:center; margin-bottom:30px; margin-top:20px;">
             <svg width="70" height="70" viewBox="0 0 100 100" fill="none">
@@ -240,7 +297,6 @@
         </div>
     </div>
 
-    <!-- VIEW: MANUAL ENTRY -->
     <div id="view-manual" class="hidden full-screen" style="justify-content: flex-start;">
         <div class="view-header"><button type="button" class="btn-quit" onclick="showView('view-setup')">×</button></div>
         
@@ -262,8 +318,7 @@
         </div>
 
         <div id="manual-form-container" style="flex:1; overflow-y:auto; margin-bottom:20px;">
-            <!-- DYNAMIC CONTENT -->
-        </div>
+            </div>
 
         <label>Reflections</label>
         <textarea id="manual-notes" rows="3" placeholder="How was it?"></textarea>
@@ -273,11 +328,12 @@
     </div>
 
 
-    <!-- VIEW: CONFIG -->
     <div id="view-config" class="hidden full-screen" style="justify-content: flex-start;">
         <div class="view-header"><button type="button" class="btn-quit" onclick="resetApp()">×</button></div>
         
         <h3 style="margin-top:10px;">Configure Splits</h3>
+        <p style="text-align:center; color:#666; font-size:0.9rem; margin-top:-10px;">Untick runs to skip them.</p>
+
         <div id="config-container" style="overflow-y: auto; flex:1; margin-bottom: 10px; padding-right:5px;"></div>
         
         <div style="margin-top: auto;">
@@ -286,7 +342,6 @@
         </div>
     </div>
 
-    <!-- VIEW: PREP INSTRUCTIONS -->
     <div id="view-prep" class="hidden full-screen" style="justify-content: flex-start;">
         <div class="view-header"><button type="button" class="btn-quit" onclick="resetApp()">×</button></div>
 
@@ -305,14 +360,12 @@
         </div>
 
         <div style="margin-top:auto; padding-bottom:10px;">
-            <button type="button" class="primary huge" onclick="startWorkout()">
-                I AM AT SPEED<br>
-                <span style="font-size:1rem; font-weight:normal; opacity:0.8;">(Start Run 1 Timer)</span>
+            <button type="button" class="primary huge" id="btn-start-all" onclick="startWorkout()">
+                START
             </button>
         </div>
     </div>
 
-    <!-- VIEW: TRACKER -->
     <div id="view-tracker" class="hidden full-screen">
         <div class="view-header"><button type="button" class="btn-quit" onclick="resetApp()">×</button></div>
 
@@ -329,7 +382,6 @@
         <button type="button" class="primary huge" id="btn-next" onclick="nextSegment()">NEXT</button>
     </div>
 
-    <!-- VIEW: SUMMARY -->
     <div id="view-summary" class="hidden full-screen" style="justify-content: flex-start;">
         <div class="view-header"><button type="button" class="btn-quit" onclick="resetApp()">×</button></div>
 
@@ -496,6 +548,23 @@
 
         // --- MAIN APP LOGIC ---
 
+        function toggleRun(index) {
+            const cb = document.getElementById(`conf-run-toggle-${index}`);
+            // Target ONLY the run input wrapper, not the whole card
+            const inputWrapper = document.getElementById(`run-wrapper-${index}`);
+            const statusText = document.getElementById(`run-status-${index}`);
+            
+            if (cb.checked) {
+                inputWrapper.classList.remove('disabled');
+                statusText.innerText = 'ENABLED';
+                statusText.className = 'run-status-text status-enabled';
+            } else {
+                inputWrapper.classList.add('disabled');
+                statusText.innerText = 'SKIPPED';
+                statusText.className = 'run-status-text status-skipped';
+            }
+        }
+
         function validateAndGenerateConfig() {
             const count = parseInt(document.getElementById('input-num-exercises').value);
             if (count > 12) { alert("Max 12 exercises allowed."); return; }
@@ -504,12 +573,25 @@
 
             for (let i = 0; i < count; i++) {
                 html.push(`
-                    <div style="background:#2c2c2e; padding:15px; margin-bottom:15px; border-radius:12px; border:1px solid #333;">
-                        <label style="color:var(--accent-color)">RUN ${i + 1}</label>
-                        <div class="input-row input-group">
-                            <div><label>Target Pace</label><input type="text" id="conf-run-${i}" value="05:00" placeholder="Pace"></div>
-                            <div style="padding-top:32px; font-size:0.9rem; color:#666; flex:0 0 50px;">min/km</div>
+                    <div id="config-card-${i}" class="config-card">
+                        
+                        <div class="run-toggle-row">
+                            <label style="color:var(--accent-color); margin:0; font-size:1.1rem;">RUN ${i + 1}</label>
+                            <div style="display:flex; align-items:center;">
+                                <span id="run-status-${i}" class="run-status-text status-enabled">ENABLED</span>
+                                <input type="checkbox" class="run-checkbox" id="conf-run-toggle-${i}" checked onchange="toggleRun(${i})">
+                            </div>
                         </div>
+
+                        <div id="run-wrapper-${i}" class="run-inputs-wrapper">
+                            <div class="input-row input-group">
+                                <div><label>Target Pace</label><input type="text" id="conf-run-${i}" value="05:00" placeholder="Pace"></div>
+                                <div style="padding-top:32px; font-size:0.9rem; color:#666; flex:0 0 50px;">min/km</div>
+                            </div>
+                        </div>
+
+                        <div class="divider"></div>
+
                         <label style="margin-top:10px; color:white;">EXERCISE ${i + 1}</label>
                         <select id="conf-ex-idx-${i}" onchange="renderExInputs(${i}, this.value)" style="margin-bottom:15px;">
                             ${EXERCISES.map((ex, idx) => `<option value="${idx}" ${idx === i % 8 ? 'selected' : ''}>${ex.name}</option>`).join('')}
@@ -518,10 +600,20 @@
                     </div>
                 `);
             }
+            
+            // FINAL RUN
             html.push(`
-                <div style="background:#2c2c2e; padding:15px; margin-bottom:15px; border-radius:12px; border:1px solid #333;">
-                    <label style="color:var(--accent-color)">FINAL RUN (${count + 1})</label>
-                    <div class="input-row"><div><label>Target Pace</label><input type="text" id="conf-run-${count}" value="05:00"></div></div>
+                <div id="config-card-${count}" class="config-card">
+                    <div class="run-toggle-row">
+                         <label style="color:var(--accent-color); margin:0; font-size:1.1rem;">FINAL RUN</label>
+                         <div style="display:flex; align-items:center;">
+                            <span id="run-status-${count}" class="run-status-text status-enabled">ENABLED</span>
+                            <input type="checkbox" class="run-checkbox" id="conf-run-toggle-${count}" checked onchange="toggleRun(${count})">
+                        </div>
+                    </div>
+                    <div id="run-wrapper-${count}" class="run-inputs-wrapper">
+                        <div class="input-row"><div><label>Target Pace</label><input type="text" id="conf-run-${count}" value="05:00"></div></div>
+                    </div>
                 </div>
             `);
 
@@ -549,6 +641,7 @@
                 let prepHtml = [];
 
                 for (let i = 0; i < count; i++) {
+                    const runToggle = document.getElementById(`conf-run-toggle-${i}`).checked;
                     const runPace = document.getElementById(`conf-run-${i}`).value;
                     const exIdx = document.getElementById(`conf-ex-idx-${i}`).value;
                     const exDef = EXERCISES[exIdx];
@@ -559,31 +652,107 @@
                     let dampEl = document.getElementById(`ex-damp-${i}`);
                     if(dampEl) detailStr += ` (Damp: ${dampEl.value})`;
 
+                    // 1. HANDLE RUN PHASE
+                    if (runToggle) {
+                        prepHtml.push(`
+                            <div class="prep-item">
+                                <div class="prep-time">Run ${i+1}</div>
+                                <div class="prep-desc">${runPace} <small>min/km</small></div>
+                            </div>
+                        `);
+                        // Add Run Segment
+                        state.segments.push({ 
+                            type: 'run', 
+                            name: `Run ${i+1}`, 
+                            detail: `Target: ${runPace} min/km`, 
+                            instruction: "Start timer when treadmill is AT SPEED.", 
+                            target: runPace 
+                        });
+
+                        // Add Transition to Exercise
+                        state.segments.push({ 
+                            type: 'transition', 
+                            subtype: 'to_exercise', 
+                            name: 'Transition', 
+                            detail: `Move to: ${exDef.name}`, 
+                            nextUp: exDef.name 
+                        });
+
+                    } else {
+                        // Run is Skipped
+                         prepHtml.push(`
+                            <div class="prep-item">
+                                <div class="prep-time strike">Run ${i+1}</div>
+                                <div class="prep-desc strike" style="color:#666">Skipped</div>
+                            </div>
+                        `);
+                        
+                        // If run is skipped, we still need to get to the exercise.
+                        state.segments.push({ 
+                            type: 'transition', 
+                            subtype: 'to_exercise', 
+                            name: 'Transition', 
+                            detail: `Move directly to: ${exDef.name}`, 
+                            nextUp: exDef.name 
+                        });
+                    }
+
+                    // 2. HANDLE EXERCISE PHASE
                     prepHtml.push(`
-                        <div class="prep-item">
-                            <div class="prep-time">Run ${i+1}</div>
-                            <div class="prep-desc">${runPace} <small>min/km</small></div>
-                        </div>
                         <div class="prep-item">
                             <div class="prep-time">Ex ${i+1}</div>
                             <div class="prep-desc"><span class="prep-highlight">${exDef.name}</span> <br><small style="color:#888">${detailStr}</small></div>
                         </div>
                     `);
-
-                    state.segments.push({ type: 'run', name: `Run ${i+1}`, detail: `Target: ${runPace} min/km`, instruction: "Start timer when treadmill is AT SPEED.", target: runPace });
-                    state.segments.push({ type: 'transition', subtype: 'to_exercise', name: 'Transition', detail: `Move to: ${exDef.name}`, nextUp: exDef.name });
                     state.segments.push({ type: 'exercise', name: exDef.name, detail: detailStr });
-                    state.segments.push({ type: 'transition', subtype: 'to_run', name: 'Transition', detail: `Move to Treadmill`, instruction: `Ramp to speed. Press NEXT when ready to start run.` });
+
+                    // 3. PREPARE FOR NEXT SEGMENT (Post-Exercise Transition)
+                    let nextRunToggle = false;
+                    if (i < count - 1) {
+                        nextRunToggle = document.getElementById(`conf-run-toggle-${i+1}`).checked;
+                    } else {
+                        nextRunToggle = document.getElementById(`conf-run-toggle-${count}`).checked;
+                    }
+
+                    if (nextRunToggle) {
+                        state.segments.push({ 
+                            type: 'transition', 
+                            subtype: 'to_run', 
+                            name: 'Transition', 
+                            detail: `Move to Treadmill`, 
+                            instruction: `Ramp to speed. Press NEXT when ready to start run.` 
+                        });
+                    } 
                 }
 
+                // 4. FINAL RUN LOGIC
+                const lastRunToggle = document.getElementById(`conf-run-toggle-${count}`).checked;
                 const lastRunPace = document.getElementById(`conf-run-${count}`).value;
-                prepHtml.push(`<div class="prep-item" style="border:none"><div class="prep-time">Run ${count+1}</div><div class="prep-desc">${lastRunPace} <small>min/km</small></div></div>`);
-                state.segments.push({ type: 'run', name: `Run ${count+1}`, detail: `Target: ${lastRunPace} min/km`, instruction: "Start timer when treadmill is AT SPEED.", target: lastRunPace });
+                
+                if (lastRunToggle) {
+                    prepHtml.push(`<div class="prep-item" style="border:none"><div class="prep-time">Run ${count+1}</div><div class="prep-desc">${lastRunPace} <small>min/km</small></div></div>`);
+                    state.segments.push({ 
+                        type: 'run', 
+                        name: `Run ${count+1}`, 
+                        detail: `Target: ${lastRunPace} min/km`, 
+                        instruction: "Start timer when treadmill is AT SPEED.", 
+                        target: lastRunPace 
+                    });
+                } else {
+                     prepHtml.push(`<div class="prep-item" style="border:none"><div class="prep-time strike">Run ${count+1}</div><div class="prep-desc strike">Skipped</div></div>`);
+                }
+
+                const btn = document.getElementById('btn-start-all');
+                if (state.segments[0].type === 'run') {
+                    btn.innerHTML = 'I AM AT SPEED<br><span style="font-size:1rem; font-weight:normal; opacity:0.8;">(Start Run 1 Timer)</span>';
+                } else {
+                    btn.innerHTML = 'START SESSION';
+                }
 
                 document.getElementById('prep-list').innerHTML = prepHtml.join('');
                 saveState();
                 showView('view-prep');
-            } catch (e) { alert("Setup Error. Check inputs."); }
+            } catch (e) { console.error(e); alert("Setup Error. Check inputs."); }
         }
 
         function startWorkout() {
@@ -630,7 +799,6 @@
             document.getElementById('tracker-details').innerText = detailText;
 
             // --- SMART NEXT LOOKAHEAD ---
-            // Find the next segment that is NOT a transition
             let nextActivity = "FINISH";
             for (let i = state.currentSegmentIndex + 1; i < state.segments.length; i++) {
                 const s = state.segments[i];
@@ -718,7 +886,6 @@
             const notes = document.getElementById('notes-area').value;
             let content = "";
             if (format === 'json') {
-                // STANDARDISED STRUCTURE MATCHING MANUAL LOG
                 const payload = {
                     meta: { type: "ROX Session", date: new Date().toLocaleDateString('en-GB') },
                     reflections: notes,
