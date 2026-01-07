@@ -80,7 +80,7 @@
             border-radius: 10px;
             width: 100%;
             box-sizing: border-box;
-            -webkit-appearance: none; /* This makes text boxes look flat */
+            -webkit-appearance: none;
             appearance: none;
             margin-bottom: 0; 
         }
@@ -119,16 +119,14 @@
         }
         
         .run-checkbox {
-            /* FORCE BROWSER TO RENDER A NATIVE CHECKBOX */
             -webkit-appearance: checkbox !important;
             appearance: checkbox !important;
-            
             width: 28px;
             height: 28px;
             accent-color: var(--accent-color);
             cursor: pointer;
             margin: 0;
-            border-radius: 4px; /* Slight rounding if browser supports it */
+            border-radius: 4px;
         }
         
         .run-status-text {
@@ -363,6 +361,9 @@
             <button type="button" class="primary huge" id="btn-start-all" onclick="startWorkout()">
                 START
             </button>
+            <button type="button" class="secondary" onclick="showView('view-config')" style="margin-top:10px;">
+                Edit Setup
+            </button>
         </div>
     </div>
 
@@ -406,7 +407,8 @@
             weighted_carry: { units: 'm', hasDamper: false, hasWeight: true },
             weighted_reps: { units: 'reps', hasDamper: false, hasWeight: true },
             distance_only: { units: 'm', hasDamper: false, hasWeight: false }, 
-            bodyweight: { units: 'reps', hasDamper: false, hasWeight: false }
+            bodyweight: { units: 'reps', hasDamper: false, hasWeight: false },
+            manual: { units: '', hasDamper: false, hasWeight: false } // Placeholder
         };
 
         const EXERCISES = [
@@ -417,7 +419,8 @@
             { name: "Rowing", type: "cardio", defaultVal: 1000 },
             { name: "Farmers Carry", type: "weighted_carry", defaultVal: 200, defaultWt: 24 },
             { name: "Lunges", type: "weighted_carry", defaultVal: 100, defaultWt: 20 },
-            { name: "Wall Balls", type: "weighted_reps", defaultVal: 100, defaultWt: 6 }
+            { name: "Wall Balls", type: "weighted_reps", defaultVal: 100, defaultWt: 6 },
+            { name: "Other / Custom", type: "manual", defaultVal: "" }
         ];
 
         let state = { status: 'idle', config: {}, segments: [], currentSegmentIndex: 0, startTime: null, segmentStartTime: null, history: [] };
@@ -625,6 +628,24 @@
         function renderExInputs(index, exIdx) {
             const container = document.getElementById(`conf-ex-inputs-${index}`);
             const ex = EXERCISES[exIdx];
+
+            // --- MANUAL / CUSTOM ENTRY LOGIC ---
+            if (ex.type === 'manual') {
+                let html = `
+                    <div style="margin-bottom:12px;">
+                        <label>Custom Name</label>
+                        <input type="text" id="ex-custom-name-${index}" placeholder="e.g. Box Jumps">
+                    </div>
+                    <div>
+                        <label>Details</label>
+                        <input type="text" id="ex-custom-details-${index}" placeholder="e.g. 50 reps or 2 mins">
+                    </div>
+                `;
+                container.innerHTML = html;
+                return;
+            }
+            // -----------------------------------
+
             const type = EXERCISE_TYPES[ex.type];
             let html = `<div class="input-row">`;
             html += `<div><label>${type.units === 'm' ? 'Distance (m)' : 'Reps'}</label><input type="number" id="ex-val-${index}" value="${ex.defaultVal}"></div>`;
@@ -645,12 +666,25 @@
                     const runPace = document.getElementById(`conf-run-${i}`).value;
                     const exIdx = document.getElementById(`conf-ex-idx-${i}`).value;
                     const exDef = EXERCISES[exIdx];
-                    const val = document.getElementById(`ex-val-${i}`).value;
-                    let detailStr = `${val}${EXERCISE_TYPES[exDef.type].units}`;
-                    let wtEl = document.getElementById(`ex-wt-${i}`);
-                    if(wtEl) detailStr += ` @ ${wtEl.value}kg`;
-                    let dampEl = document.getElementById(`ex-damp-${i}`);
-                    if(dampEl) detailStr += ` (Damp: ${dampEl.value})`;
+
+                    // --- EXTRACT EXERCISE DATA ---
+                    let exName = exDef.name;
+                    let detailStr = "";
+                    
+                    if (exDef.type === 'manual') {
+                        // Handle Custom Inputs
+                        exName = document.getElementById(`ex-custom-name-${i}`).value || "Custom Exercise";
+                        detailStr = document.getElementById(`ex-custom-details-${i}`).value || "Manual";
+                    } else {
+                        // Handle Standard Inputs
+                        const val = document.getElementById(`ex-val-${i}`).value;
+                        detailStr = `${val}${EXERCISE_TYPES[exDef.type].units}`;
+                        let wtEl = document.getElementById(`ex-wt-${i}`);
+                        if(wtEl) detailStr += ` @ ${wtEl.value}kg`;
+                        let dampEl = document.getElementById(`ex-damp-${i}`);
+                        if(dampEl) detailStr += ` (Damp: ${dampEl.value})`;
+                    }
+                    // -----------------------------
 
                     // 1. HANDLE RUN PHASE
                     if (runToggle) {
@@ -660,7 +694,6 @@
                                 <div class="prep-desc">${runPace} <small>min/km</small></div>
                             </div>
                         `);
-                        // Add Run Segment
                         state.segments.push({ 
                             type: 'run', 
                             name: `Run ${i+1}`, 
@@ -669,31 +702,27 @@
                             target: runPace 
                         });
 
-                        // Add Transition to Exercise
                         state.segments.push({ 
                             type: 'transition', 
                             subtype: 'to_exercise', 
                             name: 'Transition', 
-                            detail: `Move to: ${exDef.name}`, 
-                            nextUp: exDef.name 
+                            detail: `Move to: ${exName}`, 
+                            nextUp: exName 
                         });
 
                     } else {
-                        // Run is Skipped
                          prepHtml.push(`
                             <div class="prep-item">
                                 <div class="prep-time strike">Run ${i+1}</div>
                                 <div class="prep-desc strike" style="color:#666">Skipped</div>
                             </div>
                         `);
-                        
-                        // If run is skipped, we still need to get to the exercise.
                         state.segments.push({ 
                             type: 'transition', 
                             subtype: 'to_exercise', 
                             name: 'Transition', 
-                            detail: `Move directly to: ${exDef.name}`, 
-                            nextUp: exDef.name 
+                            detail: `Move directly to: ${exName}`, 
+                            nextUp: exName 
                         });
                     }
 
@@ -701,12 +730,12 @@
                     prepHtml.push(`
                         <div class="prep-item">
                             <div class="prep-time">Ex ${i+1}</div>
-                            <div class="prep-desc"><span class="prep-highlight">${exDef.name}</span> <br><small style="color:#888">${detailStr}</small></div>
+                            <div class="prep-desc"><span class="prep-highlight">${exName}</span> <br><small style="color:#888">${detailStr}</small></div>
                         </div>
                     `);
-                    state.segments.push({ type: 'exercise', name: exDef.name, detail: detailStr });
+                    state.segments.push({ type: 'exercise', name: exName, detail: detailStr });
 
-                    // 3. PREPARE FOR NEXT SEGMENT (Post-Exercise Transition)
+                    // 3. PREPARE FOR NEXT SEGMENT
                     let nextRunToggle = false;
                     if (i < count - 1) {
                         nextRunToggle = document.getElementById(`conf-run-toggle-${i+1}`).checked;
