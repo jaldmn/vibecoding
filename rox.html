@@ -257,105 +257,11 @@
                 <div class="menu-btn-subtext">Retrospectively log a session</div>
             </div>
         </button>
-    </div>
 
-    <!-- WORKOUT DESIGNER VIEW -->
-    <div id="view-designer" class="hidden">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-            <h2>Designer</h2>
-            <button class="small secondary" onclick="loadStandardRox()">Standard ROX</button>
-        </div>
-
-        <div class="card">
-            <div id="designer-empty-state" style="text-align: center; color: var(--dim-text); padding: 20px 0;">
-                No segments added.<br>Start building your timeline below.
-            </div>
-            
-            <div id="designer-list" class="designer-list">
-                <!-- Dynamically populated list goes here -->
-            </div>
-
-            <div class="grid-3" style="margin-top: 20px;">
-                <button class="small" onclick="openAddForm('run')">+ Run</button>
-                <button class="small" onclick="openAddForm('station')">+ Station</button>
-                <button class="small" onclick="openAddForm('rest')" style="color: var(--safe-color); border-color: var(--safe-color); background: transparent;">+ Rest</button>
-            </div>
-        </div>
-
-        <!-- Inline Add/Edit Run Form -->
-        <div id="form-add-run" class="form-panel hidden">
-            <h4 id="title-add-run">Add Run Segment</h4>
-            <div class="grid-2">
-                <div>
-                    <label>Distance</label>
-                    <input type="text" id="des-run-dist" placeholder="e.g. 1km">
-                </div>
-                <div>
-                    <label>Pace / Target</label>
-                    <select id="des-run-pace">
-                        <!-- Populated dynamically via JS -->
-                    </select>
-                </div>
-            </div>
-            <div class="grid-2">
-                <button class="primary small" id="btn-submit-run" onclick="submitAddRun()">Add</button>
-                <button class="danger small" onclick="closeAddForms()">Cancel</button>
-            </div>
-        </div>
-
-        <!-- Inline Add/Edit Station Form -->
-        <div id="form-add-station" class="form-panel hidden">
-            <h4 id="title-add-station">Add Station</h4>
-            <label>Station Type</label>
-            <select id="des-station-name">
-                <option value="Sled Push">Sled Push</option>
-                <option value="Sled Pull">Sled Pull</option>
-                <option value="Ski Erg">Ski Erg</option>
-                <option value="Rowing">Rowing</option>
-                <option value="Burpee Broad Jumps">Burpee Broad Jumps</option>
-                <option value="Farmers Carry">Farmers Carry</option>
-                <option value="Sandbag Lunges">Sandbag Lunges</option>
-                <option value="Wall Balls">Wall Balls</option>
-                <option value="Custom">-- Custom --</option>
-            </select>
-            
-            <input type="text" id="des-station-custom" class="hidden" placeholder="Enter custom station name">
-            
-            <label>Details (Weight, Distance, Reps)</label>
-            <input type="text" id="des-station-details" placeholder="e.g. 50m @ 155kg">
-            
-            <div class="grid-2">
-                <button class="primary small" id="btn-submit-station" onclick="submitAddStation()">Add</button>
-                <button class="danger small" onclick="closeAddForms()">Cancel</button>
-            </div>
-        </div>
-
-        <!-- Inline Add/Edit Rest Form -->
-        <div id="form-add-rest" class="form-panel hidden">
-            <h4 id="title-add-rest">Add Rest</h4>
-            <label>Duration</label>
-            <input type="text" id="des-rest-duration" placeholder="e.g. 90s, 2 mins">
-            <div class="grid-2">
-                <button class="primary small" id="btn-submit-rest" onclick="submitAddRest()">Add</button>
-                <button class="danger small" onclick="closeAddForms()">Cancel</button>
-            </div>
-        </div>
-
-        <button class="primary" id="btn-start-designer" onclick="startSessionFromDesigner()" style="height: 60px; font-size: 18px;">Start Session</button>
-        <button class="danger" onclick="showView('view-menu')">Back to Menu</button>
-    </div>
-
-    <!-- ROX TRACKER VIEW -->
-    <div id="view-tracker" class="hidden">
-        <div class="progress-bar"><div class="progress-fill" id="tracker-progress"></div></div>
-        <div class="card">
-            <div class="tracker-segment" id="active-segment-name">Ready</div>
-            <div class="tracker-detail" id="active-segment-detail">Press start to begin</div>
-            
-            <div class="tracker-time" id="time-display">00:00</div>
-            
-            <button class="primary" id="btn-next" style="height: 80px; font-size: 20px;" onclick="nextSegment()">START</button>
-            <button class="danger" onclick="endSession()">End Session</button>
+        <!-- New Test Connection Button -->
+        <div style="text-align: center; margin-top: 40px;">
+            <button class="secondary small" style="display: inline-flex; border: none; font-weight: normal; color: var(--dim-text);" onclick="testAPIConnection()">Test API Connection</button>
+            <div id="test-feedback" class="feedback-toast hidden" style="margin-top: 10px; font-size: 13px;"></div>
         </div>
     </div>
 
@@ -689,6 +595,50 @@
             
             requestWakeLock();
             saveState();
+        }
+
+        // --- NEW: TEST CONNECTION FUNCTION ---
+        async function testAPIConnection() {
+            const fb = document.getElementById('test-feedback');
+            fb.innerText = "Pinging endpoint...";
+            fb.style.color = "var(--text-color)";
+            fb.style.backgroundColor = "var(--border-color)";
+            fb.classList.remove('hidden');
+
+            const payload = {
+                secret: "birmingham-gas-cylinder-88",
+                isTest: true,
+                meta: { type: "Ping", timestamp: new Date().toISOString() }
+            };
+
+            try {
+                // We use standard CORS here so we can actually read the JSON response from Google to confirm success
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    body: JSON.stringify(payload),
+                    headers: {
+                        'Content-Type': 'text/plain;charset=utf-8',
+                    }
+                });
+                
+                const result = await response.json();
+                
+                if(result.status === "success") {
+                    fb.innerText = "Connection verified! No files created.";
+                    fb.style.color = "#000";
+                    fb.style.backgroundColor = "var(--safe-color)";
+                } else {
+                    throw new Error(result.message || "Unauthorised");
+                }
+                setTimeout(() => fb.classList.add('hidden'), 4000);
+
+            } catch (error) {
+                console.error('Test failed:', error);
+                fb.innerText = "Connection Failed. Check URL and Secret.";
+                fb.style.color = "#000";
+                fb.style.backgroundColor = "var(--danger-color)";
+                setTimeout(() => fb.classList.add('hidden'), 4000);
+            }
         }
 
         // --- CORE DRIVE PUSH FUNCTION ---
