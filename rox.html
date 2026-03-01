@@ -13,10 +13,12 @@
             --card-bg: #1c1c1e;
             --text-color: #ffffff;
             --accent-color: #e0fa3e;
+            --accent-hover: #c4dc2b;
             --danger-color: #ff453a;
             --safe-color: #30d158;
             --dim-text: #8e8e93;
             --border-color: #333;
+            --blue-accent: #0a84ff;
         }
 
         body {
@@ -27,485 +29,740 @@
             padding: 20px;
             padding-top: max(20px, env(safe-area-inset-top));
             padding-bottom: max(20px, env(safe-area-inset-bottom));
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-            box-sizing: border-box;
-            -webkit-user-select: none;
-            user-select: none;
-            overscroll-behavior-y: none;
         }
 
-        h1, h2, h3 { margin: 0 0 15px 0; text-align: center; letter-spacing: -0.5px; }
-        
         .hidden { display: none !important; }
-        .full-screen { flex: 1; display: flex; flex-direction: column; justify-content: center; position: relative; }
+
+        h1, h2, h3, h4 { margin-top: 0; font-weight: 700; }
         
-        /* Header with Quit Button */
-        .view-header {
-            position: absolute;
-            top: 0;
-            right: 0;
-            z-index: 9999;
-            padding: 10px;
+        .card {
+            background-color: var(--card-bg);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 16px;
         }
-        .btn-quit {
-            background: #2c2c2e;
-            color: #ccc;
-            width: 44px;
-            height: 44px;
-            border-radius: 50%;
+
+        button {
+            background-color: var(--card-bg);
+            color: var(--accent-color);
+            border: 1px solid var(--border-color);
+            padding: 16px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            margin-bottom: 12px;
+            transition: opacity 0.2s, transform 0.1s;
+            appearance: none;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-weight: bold;
-            font-size: 1.5rem;
-            cursor: pointer;
-            border: 1px solid #444;
-            padding: 0;
-            margin: 0;
-            touch-action: manipulation;
+            gap: 10px;
         }
 
-        /* Forms */
-        label { display: block; margin-bottom: 6px; font-weight: 600; color: var(--dim-text); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; }
+        button:active { opacity: 0.7; transform: scale(0.98); }
+
+        button.primary {
+            background-color: var(--accent-color);
+            color: #000;
+            border: none;
+        }
+
+        button.danger {
+            background-color: rgba(255, 69, 58, 0.1);
+            color: var(--danger-color);
+            border: 1px solid var(--danger-color);
+        }
+
+        button.secondary {
+            background-color: transparent;
+            color: var(--blue-accent);
+            border: 1px solid var(--blue-accent);
+        }
         
-        /* Global Input Styling */
+        button.small {
+            padding: 8px 12px;
+            font-size: 14px;
+            margin-bottom: 0;
+            width: auto;
+        }
+
         input, select, textarea {
-            background: #2c2c2e;
-            border: 1px solid var(--border-color);
-            color: white;
-            padding: 12px;
-            font-size: 1.1rem;
-            border-radius: 10px;
             width: 100%;
+            background-color: #000;
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 16px;
+            margin-bottom: 16px;
             box-sizing: border-box;
-            -webkit-appearance: none;
             appearance: none;
-            margin-bottom: 0; 
         }
+
+        textarea { min-height: 100px; resize: vertical; }
         
-        .input-group { margin-bottom: 20px; }
-        .input-row { display: flex; gap: 12px; }
-        .input-row > div { flex: 1; }
-
-        input:focus, select:focus, textarea:focus { border-color: var(--accent-color); outline: none; }
-
-        /* CONFIG CARD STYLING */
-        .config-card {
-            background: #2c2c2e; 
-            padding: 15px; 
-            margin-bottom: 15px; 
-            border-radius: 12px; 
-            border: 1px solid #333;
+        label {
+            display: block;
+            margin-bottom: 6px;
+            color: var(--dim-text);
+            font-size: 14px;
         }
 
-        /* Run Inputs Dimming Wrapper */
-        .run-inputs-wrapper {
-            transition: all 0.2s ease;
+        /* Main Menu Graphics */
+        .menu-btn-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 0;
         }
-        .run-inputs-wrapper.disabled {
-            opacity: 0.15;
-            pointer-events: none; 
-            filter: grayscale(1);
+        .menu-btn-content svg {
+            width: 48px;
+            height: 48px;
+        }
+        .menu-btn-text {
+            font-size: 18px;
+            font-weight: 700;
+        }
+        .menu-btn-subtext {
+            font-size: 13px;
+            font-weight: 400;
+            opacity: 0.7;
         }
 
-        /* Custom Checkbox for Run Toggle */
-        .run-toggle-row {
+        /* Designer specific styles */
+        .designer-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+
+        .designer-item {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 10px;
+            background-color: #000;
+            border: 1px solid var(--border-color);
+            padding: 12px 16px;
+            border-radius: 8px;
+            border-left: 4px solid var(--accent-color);
         }
+        .designer-item.type-run { border-left-color: var(--blue-accent); }
+        .designer-item.type-rest { border-left-color: var(--safe-color); }
         
-        .run-checkbox {
-            -webkit-appearance: checkbox !important;
-            appearance: checkbox !important;
-            width: 28px;
-            height: 28px;
-            accent-color: var(--accent-color);
-            cursor: pointer;
-            margin: 0;
-            border-radius: 4px;
+        /* Visually de-emphasize automated transitions */
+        .designer-item.type-transition { 
+            border-left-color: var(--dim-text); 
+            opacity: 0.6; 
+            padding: 6px 16px; 
+            margin-left: 20px;
         }
-        
-        .run-status-text {
-            font-size: 0.8rem;
-            font-weight: 800;
-            margin-right: 10px;
-            text-transform: uppercase;
-        }
-        .status-enabled { color: var(--safe-color); }
-        .status-skipped { color: var(--danger-color); }
+        .designer-item.type-transition .designer-item-info strong { font-size: 13px; }
 
-        .divider {
-            height: 1px;
-            background: #444;
-            margin: 20px 0 15px 0;
-        }
+        .designer-item-info strong { display: block; font-size: 16px; margin-bottom: 2px;}
+        .designer-item-info span { color: var(--dim-text); font-size: 13px; }
 
-        /* Buttons */
-        button {
-            width: 100%;
-            padding: 18px;
-            font-size: 1.1rem;
-            font-weight: 700;
-            border: none;
-            border-radius: 12px;
-            background-color: var(--card-bg);
-            color: white;
-            margin-top: 10px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            touch-action: manipulation;
-            -webkit-tap-highlight-color: transparent;
-        }
-
-        button:active { opacity: 0.8; transform: scale(0.98); }
-        button.primary { background-color: var(--accent-color); color: black; }
-        button.secondary { background-color: #333; }
-        button.danger { background-color: rgba(255, 69, 58, 0.2); color: var(--danger-color); }
-        
-        button.huge { 
-            font-size: 1.6rem; 
-            padding: 30px; 
-            margin-top: 20px; 
-            border-radius: 20px; 
-            line-height: 1.3;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.3);
-        }
-
-        /* Prep Screen Styling */
-        .prep-card {
-            background: var(--card-bg);
-            border-radius: 16px;
-            padding: 20px;
-            margin-bottom: 15px;
-            border: 1px solid #333;
-        }
-        .prep-item {
+        .designer-actions {
             display: flex;
-            margin-bottom: 12px;
-            padding-bottom: 12px;
-            border-bottom: 1px solid #333;
+            gap: 6px;
         }
-        .prep-item:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
-        .prep-time { width: 80px; color: var(--dim-text); font-variant-numeric: tabular-nums; }
-        .prep-desc { flex: 1; color: white; font-weight: 500; }
-        .prep-highlight { color: var(--accent-color); }
-        .strike { text-decoration: line-through; opacity: 0.5; }
 
-        /* Timer View */
-        .timer-display {
-            font-size: 6rem;
-            font-weight: 800;
-            text-align: center;
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+
+        .form-panel {
+            background-color: #000;
+            padding: 16px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            margin-bottom: 16px;
+        }
+
+        /* Tracker specific styles */
+        .tracker-time {
+            font-size: 64px;
             font-variant-numeric: tabular-nums;
-            margin: 10px 0;
-            line-height: 1;
+            text-align: center;
+            margin: 20px 0;
+            font-weight: 800;
             letter-spacing: -2px;
         }
-        
-        .activity-label {
-            font-size: 2.5rem;
+
+        .tracker-segment {
             text-align: center;
+            font-size: 24px;
             color: var(--accent-color);
-            font-weight: 900;
-            margin-bottom: 5px;
-            text-transform: uppercase;
-            line-height: 1.1;
+            margin-bottom: 8px;
         }
 
-        .next-up {
+        .tracker-detail {
             text-align: center;
             color: var(--dim-text);
-            font-size: 1rem;
-            margin-top: 25px;
-            background: #111;
-            padding: 8px 16px;
-            border-radius: 20px;
-            display: inline-block;
-            align-self: center;
+            margin-bottom: 30px;
         }
 
-        .details {
+        .feedback-toast {
             text-align: center;
-            font-size: 1.3rem;
-            color: #fff;
-            margin-bottom: 15px;
-            white-space: pre-wrap; 
-            font-weight: 500;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            font-weight: bold;
         }
 
-        /* Summary */
-        .summary-list {
-            list-style: none;
-            padding: 0;
-            overflow-y: auto;
-            flex: 1;
+        .progress-bar {
+            height: 4px;
+            background-color: var(--border-color);
+            border-radius: 2px;
             margin-bottom: 20px;
-            border-top: 1px solid #333;
+            overflow: hidden;
         }
-        .summary-item {
-            border-bottom: 1px solid #333;
-            padding: 12px 5px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .time-edit-input {
-            background: transparent;
-            border: 1px solid #444;
-            color: var(--accent-color);
-            font-size: 1.2rem;
-            width: 80px;
-            padding: 5px;
-            text-align: right;
-            border-radius: 6px;
-            margin: 0;
-            font-weight: bold;
+        .progress-fill {
+            height: 100%;
+            background-color: var(--accent-color);
+            width: 0%;
+            transition: width 0.3s ease;
         }
     </style>
 </head>
 <body>
 
-    <div id="view-setup">
-        <div style="text-align:center; margin-bottom:30px; margin-top:20px;">
-            <svg width="70" height="70" viewBox="0 0 100 100" fill="none">
-                <path d="M50 5L93 30V80L50 105L7 80V30L50 5Z" stroke="#e0fa3e" stroke-width="5"/>
-                <path d="M50 25V50L70 70" stroke="#e0fa3e" stroke-width="5" stroke-linecap="round"/>
-            </svg>
-            <h1 style="margin-top:10px; margin-bottom:0;">ROX TRACKER</h1>
-            <p style="color: var(--dim-text); margin:5px 0 0 0;">Hyrox Workout Assistant</p>
-        </div>
+    <!-- MAIN MENU -->
+    <div id="view-menu">
+        <h1 style="text-align: center; margin-bottom: 5px; font-size: 32px; letter-spacing: -1px;">ROX PRO</h1>
+        <p style="text-align: center; color: var(--dim-text); margin-bottom: 30px;">Select training mode</p>
         
-        <div style="background: var(--card-bg); padding:20px; border-radius:16px; margin-bottom:20px;">
-            <label>Circuit planner</label>
-            <div class="input-row" style="align-items: center;">
-                <input type="number" id="input-num-exercises" value="4" min="1" max="12" style="margin-bottom:0;">
-                <span style="color:white; font-weight:bold;">Exercises</span>
+        <button class="primary" style="height: auto; padding: 24px;" onclick="showView('view-designer')">
+            <div class="menu-btn-content">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M13 4h.01M4 20h4l1.5-3M8 20v-3l3-2 1 5h4M16 20h4l-2-7 3-1.5-2.5-4-3 1-2-3-2 1 1.5 3-2.5 1.5"></path>
+                </svg>
+                <div class="menu-btn-text">Workout Designer</div>
+                <div class="menu-btn-subtext">Build & track dynamic ROX circuits</div>
             </div>
-            <button type="button" class="primary" onclick="validateAndGenerateConfig()">Plan Workout</button>
-            <button type="button" class="secondary" onclick="checkForSavedWorkout()">Resume Session</button>
-        </div>
-
-        <div style="background: #2c2c2e; padding:15px; border-radius:16px;">
-            <label>Log External</label>
-            <button type="button" style="background:#444; margin-top:5px;" onclick="showManualEntry()">Manual Entry</button>
-        </div>
+        </button>
+        
+        <button style="height: auto; padding: 24px;" onclick="showView('view-manual'); setTodayDate()">
+            <div class="menu-btn-content">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                    <polyline points="14 2 14 8 20 8"></polyline>
+                    <line x1="16" y1="13" x2="8" y2="13"></line>
+                    <line x1="16" y1="17" x2="8" y2="17"></line>
+                    <polyline points="10 9 9 9 8 9"></polyline>
+                </svg>
+                <div class="menu-btn-text">Manual Log</div>
+                <div class="menu-btn-subtext">Retrospectively log a session</div>
+            </div>
+        </button>
     </div>
 
-    <div id="view-manual" class="hidden full-screen" style="justify-content: flex-start;">
-        <div class="view-header"><button type="button" class="btn-quit" onclick="showView('view-setup')">×</button></div>
-        
-        <h3 style="margin-top:10px;">Log Activity</h3>
-
-        <div class="input-row">
-            <div>
-                <label>Type</label>
-                <select id="manual-type" onchange="renderManualForm()">
-                    <option value="run">Run</option>
-                    <option value="gym">Gym Session</option>
-                    <option value="other">Other</option>
-                </select>
-            </div>
-            <div>
-                <label>Date</label>
-                <input type="date" id="manual-date">
-            </div>
+    <!-- WORKOUT DESIGNER VIEW -->
+    <div id="view-designer" class="hidden">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <h2>Designer</h2>
+            <button class="small secondary" onclick="loadStandardRox()">Standard ROX</button>
         </div>
 
-        <div id="manual-form-container" style="flex:1; overflow-y:auto; margin-bottom:20px;">
+        <div class="card">
+            <div id="designer-empty-state" style="text-align: center; color: var(--dim-text); padding: 20px 0;">
+                No segments added.<br>Start building your timeline below.
+            </div>
+            
+            <div id="designer-list" class="designer-list">
+                <!-- Dynamically populated list goes here -->
             </div>
 
-        <label>Reflections</label>
-        <textarea id="manual-notes" rows="3" placeholder="How was it?"></textarea>
-
-        <button type="button" class="primary" onclick="generateManualJSON()">Copy JSON</button>
-        <p id="manual-feedback" style="text-align: center; color: var(--safe-color); display: none; margin-top:10px; font-weight:bold;">Copied!</p>
-    </div>
-
-
-    <div id="view-config" class="hidden full-screen" style="justify-content: flex-start;">
-        <div class="view-header"><button type="button" class="btn-quit" onclick="resetApp()">×</button></div>
-        
-        <h3 style="margin-top:10px;">Configure Splits</h3>
-        <p style="text-align:center; color:#666; font-size:0.9rem; margin-top:-10px;">Untick runs to skip them.</p>
-
-        <div id="config-container" style="overflow-y: auto; flex:1; margin-bottom: 10px; padding-right:5px;"></div>
-        
-        <div style="margin-top: auto;">
-            <button type="button" class="primary" onclick="finishSetup()">Confirm & Prep</button>
-            <button type="button" class="secondary" onclick="showView('view-setup')">Back</button>
-        </div>
-    </div>
-
-    <div id="view-prep" class="hidden full-screen" style="justify-content: flex-start;">
-        <div class="view-header"><button type="button" class="btn-quit" onclick="resetApp()">×</button></div>
-
-        <h2 style="margin-bottom:15px; margin-top:10px;">Ready to Race?</h2>
-        
-        <label style="margin-left:5px;">Sequence</label>
-        <div class="prep-card" style="overflow-y:auto; flex:1; min-height:0;">
-            <div id="prep-list"></div>
-        </div>
-        
-        <label style="margin-left:5px;">Warm Up</label>
-        <div class="prep-card" style="padding: 15px; flex-shrink: 0;">
-            <div style="color:#ddd; font-size:0.9rem; line-height:1.5;">
-                <span style="color:var(--accent-color)">1km Slow Run</span> • Cat Cows • Arm Swings • Squats • World's Best Stretch
+            <div class="grid-3" style="margin-top: 20px;">
+                <button class="small" onclick="openAddForm('run')">+ Run</button>
+                <button class="small" onclick="openAddForm('station')">+ Station</button>
+                <button class="small" onclick="openAddForm('rest')" style="color: var(--safe-color); border-color: var(--safe-color); background: transparent;">+ Rest</button>
             </div>
         </div>
 
-        <div style="margin-top:auto; padding-bottom:10px;">
-            <button type="button" class="primary huge" id="btn-start-all" onclick="startWorkout()">
-                START
-            </button>
-            <button type="button" class="secondary" onclick="showView('view-config')" style="margin-top:10px;">
-                Edit Setup
-            </button>
+        <!-- Inline Add/Edit Run Form -->
+        <div id="form-add-run" class="form-panel hidden">
+            <h4 id="title-add-run">Add Run Segment</h4>
+            <div class="grid-2">
+                <div>
+                    <label>Distance</label>
+                    <input type="text" id="des-run-dist" placeholder="e.g. 1km">
+                </div>
+                <div>
+                    <label>Pace / Target</label>
+                    <select id="des-run-pace">
+                        <!-- Populated dynamically via JS -->
+                    </select>
+                </div>
+            </div>
+            <div class="grid-2">
+                <button class="primary small" id="btn-submit-run" onclick="submitAddRun()">Add</button>
+                <button class="danger small" onclick="closeAddForms()">Cancel</button>
+            </div>
+        </div>
+
+        <!-- Inline Add/Edit Station Form -->
+        <div id="form-add-station" class="form-panel hidden">
+            <h4 id="title-add-station">Add Station</h4>
+            <label>Station Type</label>
+            <select id="des-station-name">
+                <option value="Sled Push">Sled Push</option>
+                <option value="Sled Pull">Sled Pull</option>
+                <option value="Ski Erg">Ski Erg</option>
+                <option value="Rowing">Rowing</option>
+                <option value="Burpee Broad Jumps">Burpee Broad Jumps</option>
+                <option value="Farmers Carry">Farmers Carry</option>
+                <option value="Sandbag Lunges">Sandbag Lunges</option>
+                <option value="Wall Balls">Wall Balls</option>
+                <option value="Custom">-- Custom --</option>
+            </select>
+            
+            <input type="text" id="des-station-custom" class="hidden" placeholder="Enter custom station name">
+            
+            <label>Details (Weight, Distance, Reps)</label>
+            <input type="text" id="des-station-details" placeholder="e.g. 50m @ 155kg">
+            
+            <div class="grid-2">
+                <button class="primary small" id="btn-submit-station" onclick="submitAddStation()">Add</button>
+                <button class="danger small" onclick="closeAddForms()">Cancel</button>
+            </div>
+        </div>
+
+        <!-- Inline Add/Edit Rest Form -->
+        <div id="form-add-rest" class="form-panel hidden">
+            <h4 id="title-add-rest">Add Rest</h4>
+            <label>Duration</label>
+            <input type="text" id="des-rest-duration" placeholder="e.g. 90s, 2 mins">
+            <div class="grid-2">
+                <button class="primary small" id="btn-submit-rest" onclick="submitAddRest()">Add</button>
+                <button class="danger small" onclick="closeAddForms()">Cancel</button>
+            </div>
+        </div>
+
+        <button class="primary" id="btn-start-designer" onclick="startSessionFromDesigner()" style="height: 60px; font-size: 18px;">Start Session</button>
+        <button class="danger" onclick="showView('view-menu')">Back to Menu</button>
+    </div>
+
+    <!-- ROX TRACKER VIEW -->
+    <div id="view-tracker" class="hidden">
+        <div class="progress-bar"><div class="progress-fill" id="tracker-progress"></div></div>
+        <div class="card">
+            <div class="tracker-segment" id="active-segment-name">Ready</div>
+            <div class="tracker-detail" id="active-segment-detail">Press start to begin</div>
+            
+            <div class="tracker-time" id="time-display">00:00</div>
+            
+            <button class="primary" id="btn-next" style="height: 80px; font-size: 20px;" onclick="nextSegment()">START</button>
+            <button class="danger" onclick="endSession()">End Session</button>
         </div>
     </div>
 
-    <div id="view-tracker" class="hidden full-screen">
-        <div class="view-header"><button type="button" class="btn-quit" onclick="resetApp()">×</button></div>
-
-        <div class="details" id="tracker-progress" style="color:var(--dim-text); font-size:1rem; font-weight:400;">1 of 9</div>
-        <div class="activity-label" id="tracker-activity">RUN 1</div>
-        <div class="details" id="tracker-details">Target: 4:30 min/km</div>
+    <!-- SUMMARY VIEW -->
+    <div id="view-summary" class="hidden">
+        <h2>Session Complete</h2>
         
-        <div class="timer-display" id="main-timer">00:00</div>
-
-        <div style="display:flex; justify-content:center;">
-             <div class="next-up" id="tracker-next">Next: Transition</div>
+        <div class="card">
+            <label>Reflections (RPE, form, failures)</label>
+            <textarea id="notes-area" placeholder="How did it feel?"></textarea>
         </div>
 
-        <button type="button" class="primary huge" id="btn-next" onclick="nextSegment()">NEXT</button>
+        <div id="summary-stats" class="card" style="font-family: monospace; font-size: 14px; white-space: pre-wrap; max-height: 200px; overflow-y: auto;"></div>
+
+        <div id="copy-feedback" class="feedback-toast hidden"></div>
+        
+        <button class="primary" onclick="exportData('json')">Save to Google Drive</button>
+        <button class="secondary" onclick="exportData('csv')">Copy CSV Backup</button>
+        <button class="danger" onclick="resetApp()">Return Home</button>
     </div>
 
-    <div id="view-summary" class="hidden full-screen" style="justify-content: flex-start;">
-        <div class="view-header"><button type="button" class="btn-quit" onclick="resetApp()">×</button></div>
-
-        <h2 style="margin-top:10px;">Summary</h2>
+    <!-- MANUAL LOG VIEW -->
+    <div id="view-manual" class="hidden">
+        <h2>Manual Entry</h2>
         
-        <ul id="summary-list" class="summary-list"></ul>
+        <div class="card">
+            <label>Session Type</label>
+            <select id="manual-type" onchange="toggleManualFields()">
+                <option value="gym">Gym / S&C</option>
+                <option value="run">Run / Cardio</option>
+                <option value="other">Other / Mixed</option>
+            </select>
 
-        <label>Reflections</label>
-        <textarea id="notes-area" rows="2" placeholder="Notes on pacing, fatigue, etc."></textarea>
-        
-        <div style="margin-top: auto;">
-            <button type="button" class="primary" onclick="exportData('json')">Copy Full Data (JSON)</button>
-            <button type="button" class="secondary" onclick="exportData('csv')">Copy CSV Row</button>
-            <p id="copy-feedback" style="text-align: center; color: var(--safe-color); display: none; margin-top:10px; font-weight:bold;">Copied to clipboard!</p>
+            <label>Date</label>
+            <input type="date" id="manual-date">
+            
+            <label>Reflections</label>
+            <textarea id="manual-notes" placeholder="Session details, RPE, formatting..."></textarea>
         </div>
+
+        <div id="manual-run-fields" class="card hidden">
+            <div class="grid-2">
+                <div>
+                    <label>Distance</label>
+                    <input type="text" id="man-run-dist" placeholder="e.g. 5km">
+                </div>
+                <div>
+                    <label>Time</label>
+                    <input type="text" id="man-run-time" placeholder="e.g. 25:00">
+                </div>
+            </div>
+        </div>
+
+        <div id="manual-gym-fields" class="card">
+            <h3 style="margin-bottom: 16px;">Exercises</h3>
+            <div id="exercise-container">
+                <!-- Exercises will be injected here -->
+            </div>
+            <button class="secondary" onclick="addExerciseField()">+ Add Exercise</button>
+        </div>
+
+        <div id="manual-feedback" class="feedback-toast hidden"></div>
+
+        <button class="primary" onclick="generateManualJSON()">Save to Google Drive</button>
+        <button class="danger" onclick="showView('view-menu')">Cancel</button>
     </div>
 
     <script>
         // --- CONSTANTS ---
-        const EXERCISE_TYPES = {
-            cardio: { units: 'm', hasDamper: true, hasWeight: false },
-            weighted_carry: { units: 'm', hasDamper: false, hasWeight: true },
-            weighted_reps: { units: 'reps', hasDamper: false, hasWeight: true },
-            distance_only: { units: 'm', hasDamper: false, hasWeight: false }, 
-            bodyweight: { units: 'reps', hasDamper: false, hasWeight: false },
-            manual: { units: '', hasDamper: false, hasWeight: false } // Placeholder
-        };
+        const API_URL = 'https://script.google.com/macros/s/AKfycbyOvMZA83dntvbBkeGzZ_jI8Lq6XKMo9JUGjg0gBs7wETvX1C_rlqca1jptHSsQimU/exec'; 
 
-        const EXERCISES = [
-            { name: "Ski Erg", type: "cardio", defaultVal: 1000 },
-            { name: "Sled Push", type: "weighted_carry", defaultVal: 50, defaultWt: 152 },
-            { name: "Sled Pull", type: "weighted_carry", defaultVal: 50, defaultWt: 103 },
-            { name: "Burpee Broad Jumps", type: "distance_only", defaultVal: 80, defaultWt: 0 }, 
-            { name: "Rowing", type: "cardio", defaultVal: 1000 },
-            { name: "Farmers Carry", type: "weighted_carry", defaultVal: 200, defaultWt: 24 },
-            { name: "Lunges", type: "weighted_carry", defaultVal: 100, defaultWt: 20 },
-            { name: "Wall Balls", type: "weighted_reps", defaultVal: 100, defaultWt: 6 },
-            { name: "Other / Custom", type: "manual", defaultVal: "" }
+        const standardRoxTemplate = [
+            { name: "Run 1", type: "run", detail: "Target: 05:00/km" },
+            { name: "Transition", type: "transition", detail: "Move to: Ski Erg" },
+            { name: "Ski Erg", type: "exercise", detail: "1000m" },
+            { name: "Transition", type: "transition", detail: "Move to: Treadmill" },
+            { name: "Run 2", type: "run", detail: "Target: 05:00/km" },
+            { name: "Transition", type: "transition", detail: "Move to: Sled Push" },
+            { name: "Sled Push", type: "exercise", detail: "50m @ 152kg" },
+            { name: "Transition", type: "transition", detail: "Move to: Treadmill" },
+            { name: "Run 3", type: "run", detail: "Target: 05:00/km" },
+            { name: "Transition", type: "transition", detail: "Move to: Sled Pull" },
+            { name: "Sled Pull", type: "exercise", detail: "50m @ 103kg" },
+            { name: "Transition", type: "transition", detail: "Move to: Treadmill" },
+            { name: "Run 4", type: "run", detail: "Target: 05:00/km" },
+            { name: "Transition", type: "transition", detail: "Move to: Burpee Broad Jumps" },
+            { name: "Burpee Broad Jumps", type: "exercise", detail: "80m" },
+            { name: "Transition", type: "transition", detail: "Move to: Treadmill" },
+            { name: "Run 5", type: "run", detail: "Target: 05:00/km" },
+            { name: "Transition", type: "transition", detail: "Move to: Rowing" },
+            { name: "Rowing", type: "exercise", detail: "1000m" },
+            { name: "Transition", type: "transition", detail: "Move to: Treadmill" },
+            { name: "Run 6", type: "run", detail: "Target: 05:00/km" },
+            { name: "Transition", type: "transition", detail: "Move to: Farmers Carry" },
+            { name: "Farmers Carry", type: "exercise", detail: "200m @ 24kg each" },
+            { name: "Transition", type: "transition", detail: "Move to: Treadmill" },
+            { name: "Run 7", type: "run", detail: "Target: 05:00/km" },
+            { name: "Transition", type: "transition", detail: "Move to: Sandbag Lunges" },
+            { name: "Sandbag Lunges", type: "exercise", detail: "100m @ 20kg" },
+            { name: "Transition", type: "transition", detail: "Move to: Treadmill" },
+            { name: "Run 8", type: "run", detail: "Target: 05:00/km" },
+            { name: "Transition", type: "transition", detail: "Move to: Wall Balls" },
+            { name: "Wall Balls", type: "exercise", detail: "100 reps @ 6kg" }
         ];
 
-        let state = { status: 'idle', config: {}, segments: [], currentSegmentIndex: 0, startTime: null, segmentStartTime: null, history: [] };
-        let timerInterval = null;
-        let wakeLock = null;
+        // Central State Object
+        let state = { 
+            status: 'idle', 
+            history: [], 
+            currentIndex: -1, 
+            segmentStartTime: null,
+            template: [] 
+        };
+        
+        let timerInterval;
         let isResetting = false;
+        let wakeLock = null;
+        let manualExerciseCount = 0;
+        let editIndex = -1; // Tracks which designer item is currently being edited
 
-        // --- LIFECYCLE ---
-        document.addEventListener("visibilitychange", async () => {
-            if (document.visibilityState === 'visible') {
-                requestWakeLock();
-                if(state.status === 'active') startTimer();
-            } else {
-                saveState();
+        // Populate Pace Dropdown (3:00 to 5:30 in 5s increments)
+        function populatePaceDropdown() {
+            const select = document.getElementById('des-run-pace');
+            select.innerHTML = ''; 
+            for (let m = 3; m <= 5; m++) {
+                for (let s = 0; s < 60; s += 5) {
+                    if (m === 5 && s > 30) continue; 
+                    const sec = s.toString().padStart(2, '0');
+                    const option = document.createElement('option');
+                    option.value = `${m}:${sec}/km`;
+                    option.text = `${m}:${sec}/km`;
+                    if (m === 5 && s === 0) option.selected = true; 
+                    select.appendChild(option);
+                }
             }
+        }
+        populatePaceDropdown();
+
+        // --- WORKOUT DESIGNER LOGIC ---
+        document.getElementById('des-station-name').addEventListener('change', function(e) {
+            document.getElementById('des-station-custom').classList.toggle('hidden', e.target.value !== 'Custom');
         });
 
-        async function requestWakeLock() {
-            try { if ('wakeLock' in navigator) wakeLock = await navigator.wakeLock.request('screen'); } catch (e) {}
-        }
-
-        window.resetApp = function() {
-            if(confirm("Exit and discard current workout?")) {
-                isResetting = true;
-                localStorage.removeItem('rox_pro_state');
-                clearInterval(timerInterval);
-                if (wakeLock) wakeLock.release();
-                location.reload();
+        function loadStandardRox() {
+            if(state.template.length > 0) {
+                if(!confirm("Overwrite your current design with the standard ROX template?")) return;
             }
-        };
-
-        // --- MANUAL ENTRY LOGIC ---
-
-        function showManualEntry() {
-            document.getElementById('manual-date').valueAsDate = new Date();
-            renderManualForm();
-            showView('view-manual');
+            state.template = JSON.parse(JSON.stringify(standardRoxTemplate));
+            renderDesignerList();
         }
 
-        function renderManualForm() {
-            const type = document.getElementById('manual-type').value;
-            const container = document.getElementById('manual-form-container');
-            let html = '';
+        function renderDesignerList() {
+            const listEl = document.getElementById('designer-list');
+            const emptyEl = document.getElementById('designer-empty-state');
+            const startBtn = document.getElementById('btn-start-designer');
+            
+            listEl.innerHTML = '';
+            
+            if (state.template.length === 0) {
+                emptyEl.classList.remove('hidden');
+                startBtn.classList.add('hidden');
+                return;
+            }
+            
+            emptyEl.classList.add('hidden');
+            startBtn.classList.remove('hidden');
 
-            if (type === 'run') {
-                html = `
-                    <label>Run Details</label>
-                    <div class="input-row">
-                        <div><input type="text" id="man-run-dist" placeholder="Distance (km)"></div>
-                        <div><input type="text" id="man-run-time" placeholder="Time (Total)"></div>
+            state.template.forEach((item, index) => {
+                const div = document.createElement('div');
+                div.className = `designer-item type-${item.type}`;
+                
+                // Construct the Edit and Remove buttons. Automated transitions don't get edit buttons.
+                const actionButtons = `
+                    <div class="designer-actions">
+                        ${item.type !== 'transition' ? `
+                        <button class="secondary small" style="padding: 8px; margin: 0; background: transparent; border: 1px solid var(--dim-text); color: var(--dim-text);" onclick="openEditForm(${index})">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                        </button>
+                        ` : ''}
+                        <button class="danger small" style="padding: 8px; margin: 0; border: none; background: rgba(255, 69, 58, 0.1);" onclick="removeDesignerSegment(${index})">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                        </button>
                     </div>
                 `;
-            } else if (type === 'gym') {
-                html = `
-                    <label>Number of exercises</label>
-                    <div class="input-row" style="margin-bottom:15px;">
-                        <input type="number" id="man-gym-count" value="3" placeholder="Num Exercises">
-                        <button type="button" class="secondary" style="margin-top:0;" onclick="renderGymInputs()">Set Fields</button>
+
+                div.innerHTML = `
+                    <div class="designer-item-info">
+                        <strong>${item.name}</strong>
+                        <span>${item.detail}</span>
                     </div>
-                    <div id="man-gym-inputs"></div>
+                    ${actionButtons}
                 `;
+                listEl.appendChild(div);
+            });
+        }
+
+        function removeDesignerSegment(index) {
+            state.template.splice(index, 1);
+            renderDesignerList();
+        }
+
+        // Opens form fresh for a new item
+        function openAddForm(type) {
+            closeAddForms();
+            editIndex = -1; // Guarantee we are in Add mode
+            
+            // Reset titles and buttons to "Add" state
+            document.getElementById('title-add-run').innerText = "Add Run Segment";
+            document.getElementById('btn-submit-run').innerText = "Add";
+            
+            document.getElementById('title-add-station').innerText = "Add Station";
+            document.getElementById('btn-submit-station').innerText = "Add";
+            
+            document.getElementById('title-add-rest').innerText = "Add Rest";
+            document.getElementById('btn-submit-rest').innerText = "Add";
+
+            document.getElementById(`form-add-${type}`).classList.remove('hidden');
+            setTimeout(() => document.getElementById(`form-add-${type}`).scrollIntoView({behavior: "smooth"}), 100);
+        }
+
+        // Opens form pre-filled for an existing item
+        function openEditForm(index) {
+            closeAddForms();
+            editIndex = index;
+            const item = state.template[index];
+            
+            if (item.type === 'run') {
+                // Parse "1km - Target: 05:00/km"
+                let parts = item.detail.split(" - Target: ");
+                document.getElementById('des-run-dist').value = parts[0] || "";
+                if (parts[1]) document.getElementById('des-run-pace').value = parts[1];
+                
+                document.getElementById('title-add-run').innerText = "Edit Run Segment";
+                document.getElementById('btn-submit-run').innerText = "Save";
+                document.getElementById('form-add-run').classList.remove('hidden');
+                setTimeout(() => document.getElementById('form-add-run').scrollIntoView({behavior: "smooth"}), 100);
+                
+            } else if (item.type === 'exercise') {
+                const select = document.getElementById('des-station-name');
+                const customInput = document.getElementById('des-station-custom');
+                
+                // Check if name is in standard dropdown
+                let optionExists = Array.from(select.options).some(opt => opt.value === item.name);
+                if (optionExists) {
+                    select.value = item.name;
+                    customInput.classList.add('hidden');
+                } else {
+                    select.value = "Custom";
+                    customInput.value = item.name;
+                    customInput.classList.remove('hidden');
+                }
+                
+                document.getElementById('des-station-details').value = item.detail;
+                
+                document.getElementById('title-add-station').innerText = "Edit Station";
+                document.getElementById('btn-submit-station').innerText = "Save";
+                document.getElementById('form-add-station').classList.remove('hidden');
+                setTimeout(() => document.getElementById('form-add-station').scrollIntoView({behavior: "smooth"}), 100);
+                
+            } else if (item.type === 'rest') {
+                // Parse "Recovery: 90s"
+                let parts = item.detail.split("Recovery: ");
+                document.getElementById('des-rest-duration').value = parts[1] || "";
+                
+                document.getElementById('title-add-rest').innerText = "Edit Rest";
+                document.getElementById('btn-submit-rest').innerText = "Save";
+                document.getElementById('form-add-rest').classList.remove('hidden');
+                setTimeout(() => document.getElementById('form-add-rest').scrollIntoView({behavior: "smooth"}), 100);
+            }
+        }
+
+        function closeAddForms() {
+            editIndex = -1; // Reset mode
+            document.getElementById('form-add-run').classList.add('hidden');
+            document.getElementById('form-add-station').classList.add('hidden');
+            document.getElementById('form-add-rest').classList.add('hidden');
+        }
+
+        // Unified logic for handling Add vs Edit saves
+        function addOrUpdateSegment(name, type, detail) {
+            if (editIndex > -1) {
+                // We are editing an existing item
+                state.template[editIndex] = { name, type, detail };
+                renderDesignerList();
+                closeAddForms();
             } else {
-                html = `<p style="color:#888; text-align:center;">Just add notes below.</p>`;
+                // We are adding a new item
+                if (state.template.length > 0) {
+                    const lastItemType = state.template[state.template.length - 1].type;
+                    if (type !== 'rest' && type !== 'transition' && lastItemType !== 'transition' && lastItemType !== 'rest') {
+                        state.template.push({ name: "Transition", type: "transition", detail: `Prepare for: ${name}` });
+                    }
+                }
+                state.template.push({ name, type, detail });
+                renderDesignerList();
+                closeAddForms();
             }
-            container.innerHTML = html;
-            if(type === 'gym') renderGymInputs();
         }
 
-        function renderGymInputs() {
-            const count = parseInt(document.getElementById('man-gym-count').value) || 1;
-            const container = document.getElementById('man-gym-inputs');
-            let html = '';
-            for(let i=0; i<count; i++) {
-                html += `
-                    <div style="background:#2c2c2e; padding:10px; margin-bottom:10px; border-radius:10px; border:1px solid #333;">
-                        <input type="text" id="man-gym-name-${i}" placeholder="Exercise Name" style="font-weight:bold; color:var(--accent-color);">
-                        <div class="input-row">
-                            <input type="number" id="man-gym-sets-${i}" placeholder="Sets">
-                            <input type="text" id="man-gym-reps-${i}" placeholder="Reps">
-                            <input type="text" id="man-gym-wt-${i}" placeholder="Wt (kg)">
-                        </div>
-                    </div>
-                `;
+        function submitAddRun() {
+            const dist = document.getElementById('des-run-dist').value || "1km";
+            const pace = document.getElementById('des-run-pace').value; 
+            addOrUpdateSegment("Run", "run", `${dist} - Target: ${pace}`);
+        }
+
+        function submitAddStation() {
+            let name = document.getElementById('des-station-name').value;
+            if (name === 'Custom') name = document.getElementById('des-station-custom').value || "Custom Station";
+            const detail = document.getElementById('des-station-details').value || "Max Effort";
+            addOrUpdateSegment(name, "exercise", detail);
+        }
+
+        function submitAddRest() {
+            const duration = document.getElementById('des-rest-duration').value || "60s";
+            addOrUpdateSegment("Rest", "rest", `Recovery: ${duration}`);
+        }
+
+        function startSessionFromDesigner() {
+            if (state.template.length === 0) return;
+            state.status = 'active';
+            state.history = [];
+            state.currentIndex = -1;
+            state.segmentStartTime = null;
+            
+            showView('view-tracker');
+            document.getElementById('active-segment-name').innerText = "Ready to start";
+            document.getElementById('active-segment-detail').innerText = "Press start to begin first segment";
+            document.getElementById('time-display').innerText = "00:00";
+            document.getElementById('btn-next').innerText = "START SESSION";
+            document.getElementById('tracker-progress').style.width = "0%";
+            
+            requestWakeLock();
+            saveState();
+        }
+
+        // --- CORE DRIVE PUSH FUNCTION ---
+        async function pushToDrive(payload, feedbackElementId) {
+            const fb = document.getElementById(feedbackElementId);
+            fb.innerText = "Saving to Google Drive...";
+            fb.style.color = "var(--text-color)";
+            fb.style.backgroundColor = "var(--border-color)";
+            fb.classList.remove('hidden');
+
+            try {
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                
+                fb.innerText = "Successfully saved to Drive!";
+                fb.style.color = "#000";
+                fb.style.backgroundColor = "var(--safe-color)";
+                setTimeout(() => fb.classList.add('hidden'), 3000);
+
+            } catch (error) {
+                console.error('Transmission failed:', error);
+                fb.innerText = "Network Error. Data copied to clipboard backup.";
+                fb.style.color = "#000";
+                fb.style.backgroundColor = "var(--accent-color)";
+                
+                const jsonStr = JSON.stringify(payload, null, 2);
+                if (navigator.clipboard && window.isSecureContext) {
+                    navigator.clipboard.writeText(jsonStr);
+                } else {
+                    const textArea = document.createElement("textarea");
+                    textArea.value = jsonStr;
+                    document.body.appendChild(textArea);
+                    textArea.select();
+                    document.execCommand("copy");
+                    textArea.remove();
+                }
             }
-            container.innerHTML = html;
+        }
+
+        // --- MANUAL LOG LOGIC ---
+        function setTodayDate() {
+            document.getElementById('manual-date').value = new Date().toISOString().split('T')[0];
+            if (manualExerciseCount === 0) addExerciseField();
+        }
+
+        function toggleManualFields() {
+            const type = document.getElementById('manual-type').value;
+            document.getElementById('manual-run-fields').classList.toggle('hidden', type !== 'run');
+            document.getElementById('manual-gym-fields').classList.toggle('hidden', type !== 'gym');
+        }
+
+        function addExerciseField() {
+            const container = document.getElementById('exercise-container');
+            const i = manualExerciseCount;
+            const html = `
+                <div class="exercise-row" id="ex-row-${i}">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                        <label style="margin: 0;">Exercise ${i + 1}</label>
+                        <button class="danger small" style="width: auto; padding: 4px 8px; margin: 0; background: transparent; border-color: transparent;" onclick="this.closest('.exercise-row').remove()">Remove ✕</button>
+                    </div>
+                    <input type="text" id="man-gym-name-${i}" placeholder="e.g. Back Squat">
+                    <div class="grid-2">
+                        <input type="text" id="man-gym-sets-${i}" placeholder="Sets">
+                        <input type="text" id="man-gym-reps-${i}" placeholder="Reps">
+                    </div>
+                    <input type="text" id="man-gym-wt-${i}" placeholder="Weight (e.g. 100kg)">
+                </div>
+            `;
+            container.insertAdjacentHTML('beforeend', html);
+            manualExerciseCount++;
         }
 
         function generateManualJSON() {
@@ -515,408 +772,142 @@
             let data = {};
 
             if (type === 'run') {
-                data = {
-                    distance: document.getElementById('man-run-dist').value,
-                    time: document.getElementById('man-run-time').value
+                data = { 
+                    distance: document.getElementById('man-run-dist').value, 
+                    time: document.getElementById('man-run-time').value 
                 };
             } else if (type === 'gym') {
-                const count = parseInt(document.getElementById('man-gym-count').value) || 0;
                 let exercises = [];
-                for(let i=0; i<count; i++) {
-                    exercises.push({
-                        name: document.getElementById(`man-gym-name-${i}`).value,
-                        sets: document.getElementById(`man-gym-sets-${i}`).value,
-                        reps: document.getElementById(`man-gym-reps-${i}`).value,
-                        weight: document.getElementById(`man-gym-wt-${i}`).value
-                    });
+                for(let i = 0; i < manualExerciseCount; i++) {
+                    const nameEl = document.getElementById(`man-gym-name-${i}`);
+                    if (nameEl && nameEl.value.trim() !== "") {
+                        exercises.push({
+                            name: nameEl.value,
+                            sets: document.getElementById(`man-gym-sets-${i}`).value,
+                            reps: document.getElementById(`man-gym-reps-${i}`).value,
+                            weight: document.getElementById(`man-gym-wt-${i}`).value
+                        });
+                    }
                 }
                 data = { exercises: exercises };
             }
 
-            // STANDARDISED STRUCTURE
-            const payload = {
-                meta: { type: "Manual Log", subtype: type, date: date },
-                reflections: notes,
-                data: data
+            const payload = { 
+                meta: { type: "Manual Log", subtype: type, date: date }, 
+                reflections: notes, 
+                data: data 
             };
-
-            const content = `Manual Log Entry:\n\n${JSON.stringify(payload, null, 2)}`;
             
-            navigator.clipboard.writeText(content).then(() => {
-                const fb = document.getElementById('manual-feedback');
-                fb.style.display = 'block';
-                setTimeout(() => fb.style.display = 'none', 3000);
-            });
+            pushToDrive(payload, 'manual-feedback');
         }
 
-        // --- MAIN APP LOGIC ---
-
-        function toggleRun(index) {
-            const cb = document.getElementById(`conf-run-toggle-${index}`);
-            // Target ONLY the run input wrapper, not the whole card
-            const inputWrapper = document.getElementById(`run-wrapper-${index}`);
-            const statusText = document.getElementById(`run-status-${index}`);
-            
-            if (cb.checked) {
-                inputWrapper.classList.remove('disabled');
-                statusText.innerText = 'ENABLED';
-                statusText.className = 'run-status-text status-enabled';
-            } else {
-                inputWrapper.classList.add('disabled');
-                statusText.innerText = 'SKIPPED';
-                statusText.className = 'run-status-text status-skipped';
-            }
-        }
-
-        function validateAndGenerateConfig() {
-            const count = parseInt(document.getElementById('input-num-exercises').value);
-            if (count > 12) { alert("Max 12 exercises allowed."); return; }
-            const container = document.getElementById('config-container');
-            let html = [];
-
-            for (let i = 0; i < count; i++) {
-                html.push(`
-                    <div id="config-card-${i}" class="config-card">
-                        
-                        <div class="run-toggle-row">
-                            <label style="color:var(--accent-color); margin:0; font-size:1.1rem;">RUN ${i + 1}</label>
-                            <div style="display:flex; align-items:center;">
-                                <span id="run-status-${i}" class="run-status-text status-enabled">ENABLED</span>
-                                <input type="checkbox" class="run-checkbox" id="conf-run-toggle-${i}" checked onchange="toggleRun(${i})">
-                            </div>
-                        </div>
-
-                        <div id="run-wrapper-${i}" class="run-inputs-wrapper">
-                            <div class="input-row input-group">
-                                <div><label>Target Pace</label><input type="text" id="conf-run-${i}" value="05:00" placeholder="Pace"></div>
-                                <div style="padding-top:32px; font-size:0.9rem; color:#666; flex:0 0 50px;">min/km</div>
-                            </div>
-                        </div>
-
-                        <div class="divider"></div>
-
-                        <label style="margin-top:10px; color:white;">EXERCISE ${i + 1}</label>
-                        <select id="conf-ex-idx-${i}" onchange="renderExInputs(${i}, this.value)" style="margin-bottom:15px;">
-                            ${EXERCISES.map((ex, idx) => `<option value="${idx}" ${idx === i % 8 ? 'selected' : ''}>${ex.name}</option>`).join('')}
-                        </select>
-                        <div id="conf-ex-inputs-${i}"></div> 
-                    </div>
-                `);
-            }
-            
-            // FINAL RUN
-            html.push(`
-                <div id="config-card-${count}" class="config-card">
-                    <div class="run-toggle-row">
-                         <label style="color:var(--accent-color); margin:0; font-size:1.1rem;">FINAL RUN</label>
-                         <div style="display:flex; align-items:center;">
-                            <span id="run-status-${count}" class="run-status-text status-enabled">ENABLED</span>
-                            <input type="checkbox" class="run-checkbox" id="conf-run-toggle-${count}" checked onchange="toggleRun(${count})">
-                        </div>
-                    </div>
-                    <div id="run-wrapper-${count}" class="run-inputs-wrapper">
-                        <div class="input-row"><div><label>Target Pace</label><input type="text" id="conf-run-${count}" value="05:00"></div></div>
-                    </div>
-                </div>
-            `);
-
-            container.innerHTML = html.join('');
-            for(let i=0; i<count; i++) renderExInputs(i, i % 8);
-            showView('view-config');
-        }
-
-        function renderExInputs(index, exIdx) {
-            const container = document.getElementById(`conf-ex-inputs-${index}`);
-            const ex = EXERCISES[exIdx];
-
-            // --- MANUAL / CUSTOM ENTRY LOGIC ---
-            if (ex.type === 'manual') {
-                let html = `
-                    <div style="margin-bottom:12px;">
-                        <label>Custom Name</label>
-                        <input type="text" id="ex-custom-name-${index}" placeholder="e.g. Box Jumps">
-                    </div>
-                    <div>
-                        <label>Details</label>
-                        <input type="text" id="ex-custom-details-${index}" placeholder="e.g. 50 reps or 2 mins">
-                    </div>
-                `;
-                container.innerHTML = html;
-                return;
-            }
-            // -----------------------------------
-
-            const type = EXERCISE_TYPES[ex.type];
-            let html = `<div class="input-row">`;
-            html += `<div><label>${type.units === 'm' ? 'Distance (m)' : 'Reps'}</label><input type="number" id="ex-val-${index}" value="${ex.defaultVal}"></div>`;
-            if (type.hasWeight) html += `<div><label>Weight (kg)</label><input type="number" id="ex-wt-${index}" value="${ex.defaultWt}"></div>`;
-            if (type.hasDamper) html += `<div><label>Damper</label><select id="ex-damp-${index}" style="margin-bottom:0">${[1,2,3,4,5,6,7,8,9,10].map(n=>`<option ${n===6?'selected':''}>${n}</option>`).join('')}</select></div>`;
-            html += `</div>`;
-            container.innerHTML = html;
-        }
-
-        function finishSetup() {
+        // --- ROX TRACKER LOGIC ---
+        async function requestWakeLock() {
             try {
-                const count = parseInt(document.getElementById('input-num-exercises').value);
-                state.segments = [];
-                let prepHtml = [];
-
-                for (let i = 0; i < count; i++) {
-                    const runToggle = document.getElementById(`conf-run-toggle-${i}`).checked;
-                    const runPace = document.getElementById(`conf-run-${i}`).value;
-                    const exIdx = document.getElementById(`conf-ex-idx-${i}`).value;
-                    const exDef = EXERCISES[exIdx];
-
-                    // --- EXTRACT EXERCISE DATA ---
-                    let exName = exDef.name;
-                    let detailStr = "";
-                    
-                    if (exDef.type === 'manual') {
-                        // Handle Custom Inputs
-                        exName = document.getElementById(`ex-custom-name-${i}`).value || "Custom Exercise";
-                        detailStr = document.getElementById(`ex-custom-details-${i}`).value || "Manual";
-                    } else {
-                        // Handle Standard Inputs
-                        const val = document.getElementById(`ex-val-${i}`).value;
-                        detailStr = `${val}${EXERCISE_TYPES[exDef.type].units}`;
-                        let wtEl = document.getElementById(`ex-wt-${i}`);
-                        if(wtEl) detailStr += ` @ ${wtEl.value}kg`;
-                        let dampEl = document.getElementById(`ex-damp-${i}`);
-                        if(dampEl) detailStr += ` (Damp: ${dampEl.value})`;
-                    }
-                    // -----------------------------
-
-                    // 1. HANDLE RUN PHASE
-                    if (runToggle) {
-                        prepHtml.push(`
-                            <div class="prep-item">
-                                <div class="prep-time">Run ${i+1}</div>
-                                <div class="prep-desc">${runPace} <small>min/km</small></div>
-                            </div>
-                        `);
-                        state.segments.push({ 
-                            type: 'run', 
-                            name: `Run ${i+1}`, 
-                            detail: `Target: ${runPace} min/km`, 
-                            instruction: "Start timer when treadmill is AT SPEED.", 
-                            target: runPace 
-                        });
-
-                        state.segments.push({ 
-                            type: 'transition', 
-                            subtype: 'to_exercise', 
-                            name: 'Transition', 
-                            detail: `Move to: ${exName}`, 
-                            nextUp: exName 
-                        });
-
-                    } else {
-                         prepHtml.push(`
-                            <div class="prep-item">
-                                <div class="prep-time strike">Run ${i+1}</div>
-                                <div class="prep-desc strike" style="color:#666">Skipped</div>
-                            </div>
-                        `);
-                        state.segments.push({ 
-                            type: 'transition', 
-                            subtype: 'to_exercise', 
-                            name: 'Transition', 
-                            detail: `Move directly to: ${exName}`, 
-                            nextUp: exName 
-                        });
-                    }
-
-                    // 2. HANDLE EXERCISE PHASE
-                    prepHtml.push(`
-                        <div class="prep-item">
-                            <div class="prep-time">Ex ${i+1}</div>
-                            <div class="prep-desc"><span class="prep-highlight">${exName}</span> <br><small style="color:#888">${detailStr}</small></div>
-                        </div>
-                    `);
-                    state.segments.push({ type: 'exercise', name: exName, detail: detailStr });
-
-                    // 3. PREPARE FOR NEXT SEGMENT
-                    let nextRunToggle = false;
-                    if (i < count - 1) {
-                        nextRunToggle = document.getElementById(`conf-run-toggle-${i+1}`).checked;
-                    } else {
-                        nextRunToggle = document.getElementById(`conf-run-toggle-${count}`).checked;
-                    }
-
-                    if (nextRunToggle) {
-                        state.segments.push({ 
-                            type: 'transition', 
-                            subtype: 'to_run', 
-                            name: 'Transition', 
-                            detail: `Move to Treadmill`, 
-                            instruction: `Ramp to speed. Press NEXT when ready to start run.` 
-                        });
-                    } 
-                }
-
-                // 4. FINAL RUN LOGIC
-                const lastRunToggle = document.getElementById(`conf-run-toggle-${count}`).checked;
-                const lastRunPace = document.getElementById(`conf-run-${count}`).value;
-                
-                if (lastRunToggle) {
-                    prepHtml.push(`<div class="prep-item" style="border:none"><div class="prep-time">Run ${count+1}</div><div class="prep-desc">${lastRunPace} <small>min/km</small></div></div>`);
-                    state.segments.push({ 
-                        type: 'run', 
-                        name: `Run ${count+1}`, 
-                        detail: `Target: ${lastRunPace} min/km`, 
-                        instruction: "Start timer when treadmill is AT SPEED.", 
-                        target: lastRunPace 
-                    });
-                } else {
-                     prepHtml.push(`<div class="prep-item" style="border:none"><div class="prep-time strike">Run ${count+1}</div><div class="prep-desc strike">Skipped</div></div>`);
-                }
-
-                const btn = document.getElementById('btn-start-all');
-                if (state.segments[0].type === 'run') {
-                    btn.innerHTML = 'I AM AT SPEED<br><span style="font-size:1rem; font-weight:normal; opacity:0.8;">(Start Run 1 Timer)</span>';
-                } else {
-                    btn.innerHTML = 'START SESSION';
-                }
-
-                document.getElementById('prep-list').innerHTML = prepHtml.join('');
-                saveState();
-                showView('view-prep');
-            } catch (e) { console.error(e); alert("Setup Error. Check inputs."); }
+                if ('wakeLock' in navigator) wakeLock = await navigator.wakeLock.request('screen');
+            } catch (err) { console.log('Wake Lock error:', err); }
         }
 
-        function startWorkout() {
-            requestWakeLock();
-            state.status = 'active';
-            state.currentSegmentIndex = 0;
-            state.startTime = new Date().getTime();
-            state.segmentStartTime = new Date().getTime();
-            state.history = [];
-            updateTrackerUI();
-            startTimer();
-            showView('view-tracker');
-            saveState();
+        function releaseWakeLock() {
+            if (wakeLock !== null) {
+                wakeLock.release();
+                wakeLock = null;
+            }
+        }
+
+        function secToTime(sec) {
+            const m = Math.floor(sec / 60).toString().padStart(2, '0');
+            const s = Math.floor(sec % 60).toString().padStart(2, '0');
+            return `${m}:${s}`;
+        }
+
+        function startTimer() {
+            clearInterval(timerInterval);
+            timerInterval = setInterval(() => {
+                const now = new Date().getTime();
+                const diffSec = (now - state.segmentStartTime) / 1000;
+                document.getElementById('time-display').innerText = secToTime(diffSec);
+            }, 1000);
         }
 
         function nextSegment() {
             const now = new Date().getTime();
-            const duration = (now - state.segmentStartTime) / 1000;
-            state.history.push({ segment: state.segments[state.currentSegmentIndex], duration: duration });
-            state.currentSegmentIndex++;
-            state.segmentStartTime = new Date().getTime();
-
-            if (state.currentSegmentIndex >= state.segments.length) {
-                finishWorkout();
-            } else {
-                updateTrackerUI();
-                saveState();
+            
+            // Record previous segment
+            if (state.currentIndex >= 0 && state.currentIndex < state.template.length) {
+                const duration = (now - state.segmentStartTime) / 1000;
+                state.history.push({
+                    segment: state.template[state.currentIndex],
+                    duration: duration
+                });
             }
+
+            state.currentIndex++;
+
+            // Update Progress Bar
+            const progressPct = (state.currentIndex / state.template.length) * 100;
+            document.getElementById('tracker-progress').style.width = `${progressPct}%`;
+
+            // Check if finished
+            if (state.currentIndex >= state.template.length) {
+                endSession();
+                return;
+            }
+
+            // Setup next segment
+            state.segmentStartTime = now;
+            updateTrackerUI();
+            startTimer();
+            saveState();
         }
 
         function updateTrackerUI() {
-            const seg = state.segments[state.currentSegmentIndex];
+            const current = state.template[state.currentIndex];
+            document.getElementById('active-segment-name').innerText = current.name;
+            document.getElementById('active-segment-detail').innerText = current.detail;
+            document.getElementById('btn-next').innerText = "NEXT: " + 
+                (state.currentIndex + 1 < state.template.length ? state.template[state.currentIndex + 1].name : "FINISH");
             
-            // Progress Calc
-            const realSteps = state.segments.filter(s => s.type !== 'transition').length;
-            const currentRealStep = state.segments.slice(0, state.currentSegmentIndex + 1).filter(s => s.type !== 'transition').length;
-            const progText = seg.type === 'transition' ? "TRANSITION" : `ACTIVITY ${currentRealStep} / ${realSteps}`;
-            document.getElementById('tracker-progress').innerText = progText;
-            document.getElementById('tracker-activity').innerText = seg.name.toUpperCase();
-            
-            let detailText = seg.detail;
-            if (seg.instruction && seg.type === 'run' && seg.name !== 'Run 1') detailText = seg.instruction;
-            else if (seg.instruction && seg.type !== 'run') detailText = seg.instruction;
-            document.getElementById('tracker-details').innerText = detailText;
-
-            // --- SMART NEXT LOOKAHEAD ---
-            let nextActivity = "FINISH";
-            for (let i = state.currentSegmentIndex + 1; i < state.segments.length; i++) {
-                const s = state.segments[i];
-                if (s.type === 'run' || s.type === 'exercise') {
-                    nextActivity = `Next: ${s.name}`;
-                    break;
-                }
-            }
-            document.getElementById('tracker-next').innerText = nextActivity;
-
-            // Styling
+            // Subtle styling shift based on segment type
             const btn = document.getElementById('btn-next');
-            const bg = document.body;
-            if (seg.type === 'run') {
-                bg.style.backgroundColor = 'black';
-                document.documentElement.style.setProperty('--text-color', 'white');
-                btn.className = 'primary huge';
-                btn.innerText = "LAP / NEXT";
-            } else if (seg.type === 'transition') {
-                bg.style.backgroundColor = '#101010';
-                btn.className = 'secondary huge';
-                btn.innerText = seg.subtype === 'to_run' ? "AT SPEED (START RUN)" : "START EXERCISE";
+            if(current.type === 'rest') {
+                btn.style.backgroundColor = "var(--safe-color)";
+                btn.style.color = "#000";
             } else {
-                bg.style.backgroundColor = '#1a1000'; 
-                btn.className = 'primary huge';
-                btn.innerText = "EXERCISE DONE";
+                btn.style.backgroundColor = "var(--accent-color)";
+                btn.style.color = "#000";
             }
         }
 
-        function startTimer() {
-            if (timerInterval) clearInterval(timerInterval);
-            timerInterval = setInterval(() => {
-                if(!state.segmentStartTime) return;
-                const now = new Date().getTime();
-                const diff = Math.floor((now - state.segmentStartTime) / 1000);
-                const mins = Math.floor(diff / 60).toString().padStart(2, '0');
-                const secs = (diff % 60).toString().padStart(2, '0');
-                document.getElementById('main-timer').innerText = `${mins}:${secs}`;
-            }, 1000);
-        }
-
-        function finishWorkout() {
-            state.status = 'finished';
+        function endSession() {
             clearInterval(timerInterval);
-            if (wakeLock) wakeLock.release();
+            releaseWakeLock();
+            state.status = 'finished';
             saveState();
             renderSummary();
             showView('view-summary');
         }
 
-        function secToTime(seconds) {
-            const m = Math.floor(seconds / 60);
-            const s = Math.floor(seconds % 60).toString().padStart(2, '0');
-            return `${m}:${s}`;
-        }
-        function timeToSec(str) {
-            const p = str.split(/[:.]/);
-            return p.length === 2 ? (parseInt(p[0])*60)+parseInt(p[1]) : parseInt(str)||0;
-        }
-
         function renderSummary() {
-            const list = document.getElementById('summary-list');
-            list.innerHTML = '';
-            state.history.forEach((item, idx) => {
-                const seg = item.segment;
-                const color = seg.type === 'transition' ? '#555' : '#fff';
-                list.innerHTML += `
-                    <li class="summary-item" style="color:${color}">
-                        <div style="flex:1">
-                            <strong style="font-size:0.95rem">${seg.name}</strong><br>
-                            <small style="font-size:0.75rem; color:#777">${seg.detail.substring(0,25)}</small>
-                        </div>
-                        <input class="time-edit-input" value="${secToTime(item.duration)}" onchange="updateHistoryTime(${idx}, this.value)" type="text" inputmode="numeric">
-                    </li>
-                `;
+            let html = "";
+            let totalSec = 0;
+            state.history.forEach(h => {
+                html += `${secToTime(h.duration)} - ${h.segment.name}\n`;
+                totalSec += h.duration;
             });
-        }
-
-        function updateHistoryTime(idx, val) {
-            state.history[idx].duration = timeToSec(val);
-            saveState();
+            html += `\nTOTAL TIME: ${secToTime(totalSec)}`;
+            document.getElementById('summary-stats').innerText = html;
         }
 
         function exportData(format) {
             const notes = document.getElementById('notes-area').value;
-            let content = "";
+            
             if (format === 'json') {
                 const payload = {
-                    meta: { type: "ROX Session", date: new Date().toLocaleDateString('en-GB') },
+                    meta: { 
+                        type: "ROX Session", 
+                        date: new Date().toISOString().split('T')[0]
+                    },
                     reflections: notes,
                     segments: state.history.map(h => ({
                         segment: h.segment.name,
@@ -926,32 +917,69 @@
                         time: secToTime(h.duration)
                     }))
                 };
-                content = `ROX Session Log:\n\n${JSON.stringify(payload, null, 2)}`;
+                pushToDrive(payload, 'copy-feedback');
             } else {
                 const date = new Date().toLocaleDateString('en-GB');
                 const total = state.history.reduce((a,b)=>a+b.duration,0);
                 const safeNotes = notes.replace(/,/g, ';').replace(/\n/g, ' ');
                 const row = [date, secToTime(total), safeNotes];
-                state.history.forEach(h => { row.push(h.segment.name); row.push(secToTime(h.duration)); });
-                content = row.join(",");
-                alert("CSV Row Copied.");
+                state.history.forEach(h => { 
+                    row.push(h.segment.name); 
+                    row.push(secToTime(h.duration)); 
+                });
+                
+                if (navigator.clipboard) {
+                    navigator.clipboard.writeText(row.join(",")).then(() => {
+                        const fb = document.getElementById('copy-feedback');
+                        fb.innerText = "CSV Copied to Clipboard";
+                        fb.style.backgroundColor = "var(--border-color)";
+                        fb.classList.remove('hidden');
+                        setTimeout(() => fb.classList.add('hidden'), 3000);
+                    });
+                }
             }
-            navigator.clipboard.writeText(content).then(() => {
-                const fb = document.getElementById('copy-feedback');
-                fb.style.display = 'block';
-                setTimeout(() => fb.style.display = 'none', 3000);
-            });
         }
 
+        // --- UTILITY LOGIC ---
         function showView(id) {
-            document.querySelectorAll('body > div').forEach(d => d.classList.add('hidden'));
+            document.getElementById('view-menu').classList.add('hidden');
+            document.getElementById('view-designer').classList.add('hidden');
+            document.getElementById('view-tracker').classList.add('hidden');
+            document.getElementById('view-summary').classList.add('hidden');
+            document.getElementById('view-manual').classList.add('hidden');
+            
             document.getElementById(id).classList.remove('hidden');
+            
+            if(id === 'view-designer') {
+                renderDesignerList();
+            }
+            
             window.scrollTo(0,0);
         }
 
         function saveState() { 
             if(isResetting) return;
             try { localStorage.setItem('rox_pro_state', JSON.stringify(state)); } catch(e){} 
+        }
+
+        function resetApp() {
+            if(confirm("Return to main menu? Unsaved data will be cleared.")) {
+                isResetting = true;
+                clearInterval(timerInterval);
+                releaseWakeLock();
+                localStorage.removeItem('rox_pro_state');
+                
+                const currentTemplate = state.template;
+                state = { status: 'idle', history: [], currentIndex: -1, segmentStartTime: null, template: currentTemplate };
+                
+                document.getElementById('manual-notes').value = "";
+                document.getElementById('exercise-container').innerHTML = "";
+                manualExerciseCount = 0;
+                document.getElementById('notes-area').value = "";
+                
+                showView('view-menu');
+                setTimeout(() => isResetting = false, 100);
+            }
         }
         
         function checkForSavedWorkout() {
