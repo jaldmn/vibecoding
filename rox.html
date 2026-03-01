@@ -793,6 +793,7 @@
             }
 
             const payload = { 
+                secret: "birmingham-gas-cylinder-88",
                 meta: { type: "Manual Log", subtype: type, date: date }, 
                 reflections: notes, 
                 data: data 
@@ -904,6 +905,7 @@
             
             if (format === 'json') {
                 const payload = {
+                    secret: "birmingham-gas-cylinder-88",
                     meta: { 
                         type: "ROX Session", 
                         date: new Date().toISOString().split('T')[0]
