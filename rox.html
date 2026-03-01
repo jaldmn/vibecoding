@@ -6,7 +6,7 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#000000">
-    <title>ROX TRACKER</title>
+    <title>ROX TRACKER PRO</title>
     <style>
         :root {
             --bg-color: #000000;
@@ -110,7 +110,6 @@
             font-size: 14px;
         }
 
-        /* Main Menu Graphics */
         .menu-btn-content {
             display: flex;
             flex-direction: column;
@@ -118,28 +117,11 @@
             gap: 12px;
             padding: 10px 0;
         }
-        .menu-btn-content svg {
-            width: 48px;
-            height: 48px;
-        }
-        .menu-btn-text {
-            font-size: 18px;
-            font-weight: 700;
-        }
-        .menu-btn-subtext {
-            font-size: 13px;
-            font-weight: 400;
-            opacity: 0.7;
-        }
+        .menu-btn-content svg { width: 48px; height: 48px; }
+        .menu-btn-text { font-size: 18px; font-weight: 700; }
+        .menu-btn-subtext { font-size: 13px; font-weight: 400; opacity: 0.7; }
 
-        /* Designer specific styles */
-        .designer-list {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            margin-bottom: 20px;
-        }
-
+        .designer-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 20px; }
         .designer-item {
             display: flex;
             justify-content: space-between;
@@ -152,24 +134,11 @@
         }
         .designer-item.type-run { border-left-color: var(--blue-accent); }
         .designer-item.type-rest { border-left-color: var(--safe-color); }
-        
-        /* Visually de-emphasize automated transitions */
-        .designer-item.type-transition { 
-            border-left-color: var(--dim-text); 
-            opacity: 0.6; 
-            padding: 6px 16px; 
-            margin-left: 20px;
-        }
-        .designer-item.type-transition .designer-item-info strong { font-size: 13px; }
-
+        .designer-item.type-transition { border-left-color: var(--dim-text); opacity: 0.6; padding: 6px 16px; margin-left: 20px; }
         .designer-item-info strong { display: block; font-size: 16px; margin-bottom: 2px;}
         .designer-item-info span { color: var(--dim-text); font-size: 13px; }
 
-        .designer-actions {
-            display: flex;
-            gap: 6px;
-        }
-
+        .designer-actions { display: flex; gap: 6px; }
         .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
         .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
 
@@ -181,7 +150,6 @@
             margin-bottom: 16px;
         }
 
-        /* Tracker specific styles */
         .tracker-time {
             font-size: 64px;
             font-variant-numeric: tabular-nums;
@@ -191,18 +159,8 @@
             letter-spacing: -2px;
         }
 
-        .tracker-segment {
-            text-align: center;
-            font-size: 24px;
-            color: var(--accent-color);
-            margin-bottom: 8px;
-        }
-
-        .tracker-detail {
-            text-align: center;
-            color: var(--dim-text);
-            margin-bottom: 30px;
-        }
+        .tracker-segment { text-align: center; font-size: 24px; color: var(--accent-color); margin-bottom: 8px; }
+        .tracker-detail { text-align: center; color: var(--dim-text); margin-bottom: 30px; }
 
         .feedback-toast {
             text-align: center;
@@ -225,6 +183,13 @@
             width: 0%;
             transition: width 0.3s ease;
         }
+
+        .review-row {
+            border-bottom: 1px solid #333;
+            padding-bottom: 12px;
+            margin-bottom: 12px;
+        }
+        .review-row:last-child { border: none; }
     </style>
 </head>
 <body>
@@ -258,9 +223,8 @@
             </div>
         </button>
 
-        <!-- Test Connection Button -->
         <div style="text-align: center; margin-top: 40px;">
-            <button class="secondary small" style="display: inline-flex; border: none; font-weight: normal; color: var(--dim-text);" onclick="testAPIConnection()">Test API Connection</button>
+            <button class="secondary small" style="display: inline-flex; border: none; font-weight: normal; color: var(--dim-text);" onclick="testAPIConnection()">Test Google Drive Connection</button>
             <div id="test-feedback" class="feedback-toast hidden" style="margin-top: 10px; font-size: 13px;"></div>
         </div>
     </div>
@@ -277,9 +241,7 @@
                 No segments added.<br>Start building your timeline below.
             </div>
             
-            <div id="designer-list" class="designer-list">
-                <!-- Dynamically populated list goes here -->
-            </div>
+            <div id="designer-list" class="designer-list"></div>
 
             <div class="grid-3" style="margin-top: 20px;">
                 <button class="small" onclick="openAddForm('run')">+ Run</button>
@@ -288,7 +250,6 @@
             </div>
         </div>
 
-        <!-- Inline Add/Edit Run Form -->
         <div id="form-add-run" class="form-panel hidden">
             <h4 id="title-add-run">Add Run Segment</h4>
             <div class="grid-2">
@@ -298,9 +259,7 @@
                 </div>
                 <div>
                     <label>Pace / Target</label>
-                    <select id="des-run-pace">
-                        <!-- Populated dynamically via JS -->
-                    </select>
+                    <select id="des-run-pace"></select>
                 </div>
             </div>
             <div class="grid-2">
@@ -309,7 +268,6 @@
             </div>
         </div>
 
-        <!-- Inline Add/Edit Station Form -->
         <div id="form-add-station" class="form-panel hidden">
             <h4 id="title-add-station">Add Station</h4>
             <label>Station Type</label>
@@ -324,19 +282,15 @@
                 <option value="Wall Balls">Wall Balls</option>
                 <option value="Custom">-- Custom --</option>
             </select>
-            
             <input type="text" id="des-station-custom" class="hidden" placeholder="Enter custom station name">
-            
             <label>Details (Weight, Distance, Reps)</label>
             <input type="text" id="des-station-details" placeholder="e.g. 50m @ 155kg">
-            
             <div class="grid-2">
                 <button class="primary small" id="btn-submit-station" onclick="submitAddStation()">Add</button>
                 <button class="danger small" onclick="closeAddForms()">Cancel</button>
             </div>
         </div>
 
-        <!-- Inline Add/Edit Rest Form -->
         <div id="form-add-rest" class="form-panel hidden">
             <h4 id="title-add-rest">Add Rest</h4>
             <label>Duration</label>
@@ -357,36 +311,39 @@
         <div class="card">
             <div class="tracker-segment" id="active-segment-name">Ready</div>
             <div class="tracker-detail" id="active-segment-detail">Press start to begin</div>
-            
             <div class="tracker-time" id="time-display">00:00</div>
-            
             <button class="primary" id="btn-next" style="height: 80px; font-size: 20px;" onclick="nextSegment()">START</button>
             <button class="danger" onclick="endSession()">End Session</button>
         </div>
     </div>
 
-    <!-- SUMMARY VIEW -->
+    <!-- SUMMARY VIEW (EDITABLE REVIEW SCREEN) -->
     <div id="view-summary" class="hidden">
-        <h2>Session Complete</h2>
+        <h2 style="margin-bottom: 4px;">Review Session</h2>
+        <p style="color: var(--dim-text); font-size: 14px; margin-bottom: 20px;">Amend any errors before saving to Google Drive.</p>
         
+        <div id="review-list" style="margin-bottom: 24px;">
+            <!-- Injected editable rows -->
+        </div>
+
         <div class="card">
             <label>Reflections (RPE, form, failures)</label>
             <textarea id="notes-area" placeholder="How did it feel?"></textarea>
         </div>
 
-        <div id="summary-stats" class="card" style="font-family: monospace; font-size: 14px; white-space: pre-wrap; max-height: 200px; overflow-y: auto;"></div>
-
         <div id="copy-feedback" class="feedback-toast hidden"></div>
         
-        <button class="primary" onclick="exportData('json')">Save to Google Drive</button>
-        <button class="secondary" onclick="exportData('csv')">Copy CSV Backup</button>
-        <button class="danger" onclick="resetApp()">Return Home</button>
+        <button class="primary" style="height: 64px; font-size: 18px;" onclick="prepareAndSyncToDrive()">Sync to Google Drive</button>
+        
+        <div class="grid-2">
+            <button class="secondary small" onclick="exportToClipboardCSV()">Copy CSV Backup</button>
+            <button class="danger small" onclick="resetApp()">Discard & Home</button>
+        </div>
     </div>
 
     <!-- MANUAL LOG VIEW -->
     <div id="view-manual" class="hidden">
         <h2>Manual Entry</h2>
-        
         <div class="card">
             <label>Session Type</label>
             <select id="manual-type" onchange="toggleManualFields()">
@@ -394,12 +351,10 @@
                 <option value="run">Run / Cardio</option>
                 <option value="other">Other / Mixed</option>
             </select>
-
             <label>Date</label>
             <input type="date" id="manual-date">
-            
             <label>Reflections</label>
-            <textarea id="manual-notes" placeholder="Session details, RPE, formatting..."></textarea>
+            <textarea id="manual-notes" placeholder="Session details, RPE..."></textarea>
         </div>
 
         <div id="manual-run-fields" class="card hidden">
@@ -417,21 +372,17 @@
 
         <div id="manual-gym-fields" class="card">
             <h3 style="margin-bottom: 16px;">Exercises</h3>
-            <div id="exercise-container">
-                <!-- Exercises will be injected here -->
-            </div>
+            <div id="exercise-container"></div>
             <button class="secondary" onclick="addExerciseField()">+ Add Exercise</button>
         </div>
 
         <div id="manual-feedback" class="feedback-toast hidden"></div>
-
         <button class="primary" onclick="generateManualJSON()">Save to Google Drive</button>
         <button class="danger" onclick="showView('view-menu')">Cancel</button>
     </div>
 
     <script>
-        // --- CONSTANTS ---
-        const API_URL = 'https://script.google.com/macros/s/AKfycbztrPsGHy-PCsHSsVoLHrBlMWRCYCBfmuwf_V8OlIECOnbfOPTSmE6eOO9Va8gFL2BE/exec'; 
+        const API_URL = 'https://script.google.com/macros/s/AKfycbwv-xKc49ArTMrPE80dsdLTDE_csyGrnh1YhBiT0b5QgHpDYRlp0L5y34AN6idTHksO/exec'; 
         const API_SECRET = "birmingham-gas-cylinder-88";
 
         const standardRoxTemplate = [
@@ -468,7 +419,6 @@
             { name: "Wall Balls", type: "exercise", detail: "100 reps @ 6kg" }
         ];
 
-        // Central State Object
         let state = { 
             status: 'idle', 
             history: [], 
@@ -477,13 +427,8 @@
             template: [] 
         };
         
-        let timerInterval;
-        let isResetting = false;
-        let wakeLock = null;
-        let manualExerciseCount = 0;
-        let editIndex = -1; // Tracks which designer item is currently being edited
+        let timerInterval, wakeLock = null, manualExerciseCount = 0, editIndex = -1, isResetting = false;
 
-        // Populate Pace Dropdown (3:00 to 5:30 in 5s increments)
         function populatePaceDropdown() {
             const select = document.getElementById('des-run-pace');
             select.innerHTML = ''; 
@@ -501,559 +446,273 @@
         }
         populatePaceDropdown();
 
-        // --- WORKOUT DESIGNER LOGIC ---
-        document.getElementById('des-station-name').addEventListener('change', function(e) {
+        // DESIGNER LOGIC
+        document.getElementById('des-station-name').addEventListener('change', e => {
             document.getElementById('des-station-custom').classList.toggle('hidden', e.target.value !== 'Custom');
         });
 
         function loadStandardRox() {
-            if(state.template.length > 0) {
-                if(!confirm("Overwrite your current design with the standard ROX template?")) return;
-            }
+            if(state.template.length > 0 && !confirm("Overwrite current design?")) return;
             state.template = JSON.parse(JSON.stringify(standardRoxTemplate));
             renderDesignerList();
         }
 
         function renderDesignerList() {
-            const listEl = document.getElementById('designer-list');
-            const emptyEl = document.getElementById('designer-empty-state');
-            const startBtn = document.getElementById('btn-start-designer');
-            
+            const listEl = document.getElementById('designer-list'), emptyEl = document.getElementById('designer-empty-state'), startBtn = document.getElementById('btn-start-designer');
             listEl.innerHTML = '';
-            
-            if (state.template.length === 0) {
-                emptyEl.classList.remove('hidden');
-                startBtn.classList.add('hidden');
-                return;
-            }
-            
-            emptyEl.classList.add('hidden');
-            startBtn.classList.remove('hidden');
+            if (state.template.length === 0) { emptyEl.classList.remove('hidden'); startBtn.classList.add('hidden'); return; }
+            emptyEl.classList.add('hidden'); startBtn.classList.remove('hidden');
 
             state.template.forEach((item, index) => {
                 const div = document.createElement('div');
                 div.className = `designer-item type-${item.type}`;
-                
-                // Construct the Edit and Remove buttons. Automated transitions don't get edit buttons.
-                const actionButtons = `
-                    <div class="designer-actions">
-                        ${item.type !== 'transition' ? `
-                        <button class="secondary small" style="padding: 8px; margin: 0; background: transparent; border: 1px solid var(--dim-text); color: var(--dim-text);" onclick="openEditForm(${index})">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
-                        </button>
-                        ` : ''}
-                        <button class="danger small" style="padding: 8px; margin: 0; border: none; background: rgba(255, 69, 58, 0.1);" onclick="removeDesignerSegment(${index})">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
-                        </button>
-                    </div>
-                `;
-
                 div.innerHTML = `
-                    <div class="designer-item-info">
-                        <strong>${item.name}</strong>
-                        <span>${item.detail}</span>
-                    </div>
-                    ${actionButtons}
-                `;
+                    <div class="designer-item-info"><strong>${item.name}</strong><span>${item.detail}</span></div>
+                    <div class="designer-actions">
+                        ${item.type !== 'transition' ? `<button class="secondary small" onclick="openEditForm(${index})">✎</button>` : ''}
+                        <button class="danger small" onclick="removeDesignerSegment(${index})">✕</button>
+                    </div>`;
                 listEl.appendChild(div);
             });
         }
 
-        function removeDesignerSegment(index) {
-            state.template.splice(index, 1);
-            renderDesignerList();
-        }
+        function removeDesignerSegment(index) { state.template.splice(index, 1); renderDesignerList(); }
 
-        // Opens form fresh for a new item
         function openAddForm(type) {
-            closeAddForms();
-            editIndex = -1; // Guarantee we are in Add mode
-            
-            // Reset titles and buttons to "Add" state
-            document.getElementById('title-add-run').innerText = "Add Run Segment";
-            document.getElementById('btn-submit-run').innerText = "Add";
-            
-            document.getElementById('title-add-station').innerText = "Add Station";
-            document.getElementById('btn-submit-station').innerText = "Add";
-            
-            document.getElementById('title-add-rest').innerText = "Add Rest";
-            document.getElementById('btn-submit-rest').innerText = "Add";
-
+            closeAddForms(); editIndex = -1;
+            document.getElementById(`title-add-${type}`).innerText = `Add ${type.charAt(0).toUpperCase() + type.slice(1)}`;
+            document.getElementById(`btn-submit-${type}`).innerText = "Add";
             document.getElementById(`form-add-${type}`).classList.remove('hidden');
-            setTimeout(() => document.getElementById(`form-add-${type}`).scrollIntoView({behavior: "smooth"}), 100);
         }
 
-        // Opens form pre-filled for an existing item
         function openEditForm(index) {
-            closeAddForms();
-            editIndex = index;
+            closeAddForms(); editIndex = index;
             const item = state.template[index];
-            
             if (item.type === 'run') {
-                // Parse "1km - Target: 05:00/km"
                 let parts = item.detail.split(" - Target: ");
                 document.getElementById('des-run-dist').value = parts[0] || "";
-                if (parts[1]) document.getElementById('des-run-pace').value = parts[1];
-                
-                document.getElementById('title-add-run').innerText = "Edit Run Segment";
-                document.getElementById('btn-submit-run').innerText = "Save";
+                document.getElementById('des-run-pace').value = parts[1] || "5:00/km";
+                document.getElementById('title-add-run').innerText = "Edit Run";
                 document.getElementById('form-add-run').classList.remove('hidden');
-                setTimeout(() => document.getElementById('form-add-run').scrollIntoView({behavior: "smooth"}), 100);
-                
             } else if (item.type === 'exercise') {
-                const select = document.getElementById('des-station-name');
-                const customInput = document.getElementById('des-station-custom');
-                
-                // Check if name is in standard dropdown
-                let optionExists = Array.from(select.options).some(opt => opt.value === item.name);
-                if (optionExists) {
-                    select.value = item.name;
-                    customInput.classList.add('hidden');
-                } else {
-                    select.value = "Custom";
-                    customInput.value = item.name;
-                    customInput.classList.remove('hidden');
-                }
-                
                 document.getElementById('des-station-details').value = item.detail;
-                
                 document.getElementById('title-add-station').innerText = "Edit Station";
-                document.getElementById('btn-submit-station').innerText = "Save";
                 document.getElementById('form-add-station').classList.remove('hidden');
-                setTimeout(() => document.getElementById('form-add-station').scrollIntoView({behavior: "smooth"}), 100);
-                
             } else if (item.type === 'rest') {
-                // Parse "Recovery: 90s"
-                let parts = item.detail.split("Recovery: ");
-                document.getElementById('des-rest-duration').value = parts[1] || "";
-                
+                document.getElementById('des-rest-duration').value = item.detail.replace("Recovery: ", "");
                 document.getElementById('title-add-rest').innerText = "Edit Rest";
-                document.getElementById('btn-submit-rest').innerText = "Save";
                 document.getElementById('form-add-rest').classList.remove('hidden');
-                setTimeout(() => document.getElementById('form-add-rest').scrollIntoView({behavior: "smooth"}), 100);
             }
         }
 
         function closeAddForms() {
-            editIndex = -1; // Reset mode
-            document.getElementById('form-add-run').classList.add('hidden');
-            document.getElementById('form-add-station').classList.add('hidden');
-            document.getElementById('form-add-rest').classList.add('hidden');
+            ['run', 'station', 'rest'].forEach(t => document.getElementById(`form-add-${t}`).classList.add('hidden'));
         }
 
-        // Unified logic for handling Add vs Edit saves
         function addOrUpdateSegment(name, type, detail) {
             if (editIndex > -1) {
-                // We are editing an existing item
                 state.template[editIndex] = { name, type, detail };
-                renderDesignerList();
-                closeAddForms();
             } else {
-                // We are adding a new item
                 if (state.template.length > 0) {
-                    const lastItemType = state.template[state.template.length - 1].type;
-                    if (type !== 'rest' && type !== 'transition' && lastItemType !== 'transition' && lastItemType !== 'rest') {
-                        state.template.push({ name: "Transition", type: "transition", detail: `Prepare for: ${name}` });
+                    const lastType = state.template[state.template.length - 1].type;
+                    if (type !== 'rest' && type !== 'transition' && lastType !== 'transition') {
+                        state.template.push({ name: "Transition", type: "transition", detail: `Prep for ${name}` });
                     }
                 }
                 state.template.push({ name, type, detail });
-                renderDesignerList();
-                closeAddForms();
             }
+            renderDesignerList(); closeAddForms();
         }
 
-        function submitAddRun() {
-            const dist = document.getElementById('des-run-dist').value || "1km";
-            const pace = document.getElementById('des-run-pace').value; 
-            addOrUpdateSegment("Run", "run", `${dist} - Target: ${pace}`);
+        function submitAddRun() { addOrUpdateSegment("Run", "run", `${document.getElementById('des-run-dist').value || "1km"} - Target: ${document.getElementById('des-run-pace').value}`); }
+        function submitAddStation() { 
+            let n = document.getElementById('des-station-name').value;
+            if (n === 'Custom') n = document.getElementById('des-station-custom').value || "Custom";
+            addOrUpdateSegment(n, "exercise", document.getElementById('des-station-details').value || "Max Effort"); 
         }
+        function submitAddRest() { addOrUpdateSegment("Rest", "rest", `Recovery: ${document.getElementById('des-rest-duration').value || "60s"}`); }
 
-        function submitAddStation() {
-            let name = document.getElementById('des-station-name').value;
-            if (name === 'Custom') name = document.getElementById('des-station-custom').value || "Custom Station";
-            const detail = document.getElementById('des-station-details').value || "Max Effort";
-            addOrUpdateSegment(name, "exercise", detail);
-        }
-
-        function submitAddRest() {
-            const duration = document.getElementById('des-rest-duration').value || "60s";
-            addOrUpdateSegment("Rest", "rest", `Recovery: ${duration}`);
-        }
-
+        // TRACKER LOGIC
         function startSessionFromDesigner() {
-            if (state.template.length === 0) return;
-            state.status = 'active';
-            state.history = [];
-            state.currentIndex = -1;
-            state.segmentStartTime = null;
-            
+            if (!state.template.length) return;
+            state.status = 'active'; state.history = []; state.currentIndex = -1;
             showView('view-tracker');
-            document.getElementById('active-segment-name').innerText = "Ready to start";
-            document.getElementById('active-segment-detail').innerText = "Press start to begin first segment";
-            document.getElementById('time-display').innerText = "00:00";
             document.getElementById('btn-next').innerText = "START SESSION";
-            document.getElementById('tracker-progress').style.width = "0%";
-            
-            requestWakeLock();
-            saveState();
+            requestWakeLock(); saveState();
         }
 
-        // --- NEW: TEST CONNECTION FUNCTION ---
-        async function testAPIConnection() {
-            const fb = document.getElementById('test-feedback');
-            fb.innerText = "Pinging endpoint...";
-            fb.style.color = "var(--text-color)";
-            fb.style.backgroundColor = "var(--border-color)";
-            fb.classList.remove('hidden');
-
-            const payload = {
-                secret: API_SECRET,
-                isTest: true,
-                meta: { type: "Ping", timestamp: new Date().toISOString() }
-            };
-
-            try {
-                const response = await fetch(API_URL, {
-                    method: 'POST',
-                    body: JSON.stringify(payload),
-                    headers: { 'Content-Type': 'text/plain;charset=utf-8' }
-                });
-                
-                const result = await response.json();
-                
-                if(result.status === "success") {
-                    fb.innerText = "Connection verified! No files created.";
-                    fb.style.color = "#000";
-                    fb.style.backgroundColor = "var(--safe-color)";
-                } else {
-                    throw new Error(result.message || "Unauthorised");
-                }
-                setTimeout(() => fb.classList.add('hidden'), 4000);
-
-            } catch (error) {
-                console.error('Test failed:', error);
-                fb.innerText = "Connection Failed. Check URL and Secret.";
-                fb.style.color = "#000";
-                fb.style.backgroundColor = "var(--danger-color)";
-                setTimeout(() => fb.classList.add('hidden'), 4000);
+        function secToTime(s) { return `${Math.floor(s/60).toString().padStart(2,'0')}:${Math.floor(s%60).toString().padStart(2,'0')}`; }
+        
+        // Parser to convert MM:SS or raw number back to seconds
+        function timeToSec(str) {
+            if (!str) return 0;
+            if (str.includes(':')) {
+                const parts = str.split(':');
+                return (parseInt(parts[0]) * 60) + (parseInt(parts[1]) || 0);
             }
-        }
-
-        // --- CORE DRIVE PUSH FUNCTION ---
-        async function pushToDrive(payload, feedbackElementId) {
-            const fb = document.getElementById(feedbackElementId);
-            fb.innerText = "Saving to Google Drive...";
-            fb.style.color = "var(--text-color)";
-            fb.style.backgroundColor = "var(--border-color)";
-            fb.classList.remove('hidden');
-
-            try {
-                const response = await fetch(API_URL, {
-                    method: 'POST',
-                    mode: 'no-cors',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
-                
-                fb.innerText = "Successfully saved to Drive!";
-                fb.style.color = "#000";
-                fb.style.backgroundColor = "var(--safe-color)";
-                setTimeout(() => fb.classList.add('hidden'), 3000);
-
-            } catch (error) {
-                console.error('Transmission failed:', error);
-                fb.innerText = "Network Error. Data copied to clipboard backup.";
-                fb.style.color = "#000";
-                fb.style.backgroundColor = "var(--accent-color)";
-                
-                const jsonStr = JSON.stringify(payload, null, 2);
-                if (navigator.clipboard && window.isSecureContext) {
-                    navigator.clipboard.writeText(jsonStr);
-                } else {
-                    const textArea = document.createElement("textarea");
-                    textArea.value = jsonStr;
-                    document.body.appendChild(textArea);
-                    textArea.select();
-                    document.execCommand("copy");
-                    textArea.remove();
-                }
-            }
-        }
-
-        // --- MANUAL LOG LOGIC ---
-        function setTodayDate() {
-            document.getElementById('manual-date').value = new Date().toISOString().split('T')[0];
-            if (manualExerciseCount === 0) addExerciseField();
-        }
-
-        function toggleManualFields() {
-            const type = document.getElementById('manual-type').value;
-            document.getElementById('manual-run-fields').classList.toggle('hidden', type !== 'run');
-            document.getElementById('manual-gym-fields').classList.toggle('hidden', type !== 'gym');
-        }
-
-        function addExerciseField() {
-            const container = document.getElementById('exercise-container');
-            const i = manualExerciseCount;
-            const html = `
-                <div class="exercise-row" id="ex-row-${i}">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-                        <label style="margin: 0;">Exercise ${i + 1}</label>
-                        <button class="danger small" style="width: auto; padding: 4px 8px; margin: 0; background: transparent; border-color: transparent;" onclick="this.closest('.exercise-row').remove()">Remove ✕</button>
-                    </div>
-                    <input type="text" id="man-gym-name-${i}" placeholder="e.g. Back Squat">
-                    <div class="grid-2">
-                        <input type="text" id="man-gym-sets-${i}" placeholder="Sets">
-                        <input type="text" id="man-gym-reps-${i}" placeholder="Reps">
-                    </div>
-                    <input type="text" id="man-gym-wt-${i}" placeholder="Weight (e.g. 100kg)">
-                </div>
-            `;
-            container.insertAdjacentHTML('beforeend', html);
-            manualExerciseCount++;
-        }
-
-        function generateManualJSON() {
-            const type = document.getElementById('manual-type').value;
-            const date = document.getElementById('manual-date').value;
-            const notes = document.getElementById('manual-notes').value;
-            let data = {};
-
-            if (type === 'run') {
-                data = { 
-                    distance: document.getElementById('man-run-dist').value, 
-                    time: document.getElementById('man-run-time').value 
-                };
-            } else if (type === 'gym') {
-                let exercises = [];
-                for(let i = 0; i < manualExerciseCount; i++) {
-                    const nameEl = document.getElementById(`man-gym-name-${i}`);
-                    if (nameEl && nameEl.value.trim() !== "") {
-                        exercises.push({
-                            name: nameEl.value,
-                            sets: document.getElementById(`man-gym-sets-${i}`).value,
-                            reps: document.getElementById(`man-gym-reps-${i}`).value,
-                            weight: document.getElementById(`man-gym-wt-${i}`).value
-                        });
-                    }
-                }
-                data = { exercises: exercises };
-            }
-
-            const payload = { 
-                secret: API_SECRET,
-                meta: { type: "Manual Log", subtype: type, date: date }, 
-                reflections: notes, 
-                data: data 
-            };
-            
-            pushToDrive(payload, 'manual-feedback');
-        }
-
-        // --- ROX TRACKER LOGIC ---
-        async function requestWakeLock() {
-            try {
-                if ('wakeLock' in navigator) wakeLock = await navigator.wakeLock.request('screen');
-            } catch (err) { console.log('Wake Lock error:', err); }
-        }
-
-        function releaseWakeLock() {
-            if (wakeLock !== null) {
-                wakeLock.release();
-                wakeLock = null;
-            }
-        }
-
-        function secToTime(sec) {
-            const m = Math.floor(sec / 60).toString().padStart(2, '0');
-            const s = Math.floor(sec % 60).toString().padStart(2, '0');
-            return `${m}:${s}`;
+            return parseInt(str) || 0;
         }
 
         function startTimer() {
             clearInterval(timerInterval);
             timerInterval = setInterval(() => {
-                const now = new Date().getTime();
-                const diffSec = (now - state.segmentStartTime) / 1000;
-                document.getElementById('time-display').innerText = secToTime(diffSec);
+                document.getElementById('time-display').innerText = secToTime((new Date().getTime() - state.segmentStartTime) / 1000);
             }, 1000);
         }
 
         function nextSegment() {
             const now = new Date().getTime();
-            
-            // Record previous segment
-            if (state.currentIndex >= 0 && state.currentIndex < state.template.length) {
-                const duration = (now - state.segmentStartTime) / 1000;
-                state.history.push({
-                    segment: state.template[state.currentIndex],
-                    duration: duration
-                });
+            if (state.currentIndex >= 0) {
+                state.history.push({ segment: state.template[state.currentIndex], duration: (now - state.segmentStartTime) / 1000 });
             }
-
             state.currentIndex++;
-
-            // Update Progress Bar
-            const progressPct = (state.currentIndex / state.template.length) * 100;
-            document.getElementById('tracker-progress').style.width = `${progressPct}%`;
-
-            // Check if finished
-            if (state.currentIndex >= state.template.length) {
-                endSession();
-                return;
-            }
-
-            // Setup next segment
+            document.getElementById('tracker-progress').style.width = `${(state.currentIndex / state.template.length) * 100}%`;
+            if (state.currentIndex >= state.template.length) { endSession(); return; }
             state.segmentStartTime = now;
-            updateTrackerUI();
-            startTimer();
-            saveState();
+            updateTrackerUI(); startTimer(); saveState();
         }
 
         function updateTrackerUI() {
-            const current = state.template[state.currentIndex];
-            document.getElementById('active-segment-name').innerText = current.name;
-            document.getElementById('active-segment-detail').innerText = current.detail;
-            document.getElementById('btn-next').innerText = "NEXT: " + 
-                (state.currentIndex + 1 < state.template.length ? state.template[state.currentIndex + 1].name : "FINISH");
-            
-            // Subtle styling shift based on segment type
-            const btn = document.getElementById('btn-next');
-            if(current.type === 'rest') {
-                btn.style.backgroundColor = "var(--safe-color)";
-                btn.style.color = "#000";
-            } else {
-                btn.style.backgroundColor = "var(--accent-color)";
-                btn.style.color = "#000";
-            }
+            const c = state.template[state.currentIndex];
+            document.getElementById('active-segment-name').innerText = c.name;
+            document.getElementById('active-segment-detail').innerText = c.detail;
+            document.getElementById('btn-next').innerText = "NEXT: " + (state.currentIndex + 1 < state.template.length ? state.template[state.currentIndex+1].name : "FINISH");
+            document.getElementById('btn-next').style.backgroundColor = c.type === 'rest' ? "var(--safe-color)" : "var(--accent-color)";
         }
 
         function endSession() {
-            clearInterval(timerInterval);
-            releaseWakeLock();
-            state.status = 'finished';
-            saveState();
-            renderSummary();
+            clearInterval(timerInterval); releaseWakeLock();
+            state.status = 'finished'; saveState();
+            renderReviewInterface();
             showView('view-summary');
         }
 
-        function renderSummary() {
-            let html = "";
-            let totalSec = 0;
-            state.history.forEach(h => {
-                html += `${secToTime(h.duration)} - ${h.segment.name}\n`;
-                totalSec += h.duration;
+        // REVIEW INTERFACE
+        function renderReviewInterface() {
+            const container = document.getElementById('review-list');
+            container.innerHTML = "";
+            state.history.forEach((h, i) => {
+                const div = document.createElement('div');
+                div.className = "review-row card";
+                div.style.padding = "12px";
+                div.innerHTML = `
+                    <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 8px; margin-bottom: 8px;">
+                        <input type="text" id="rev-name-${i}" value="${h.segment.name}" style="margin:0; font-weight:bold;">
+                        <input type="text" id="rev-time-${i}" value="${secToTime(h.duration)}" style="margin:0; font-variant-numeric: tabular-nums;">
+                    </div>
+                    <input type="text" id="rev-detail-${i}" value="${h.segment.detail}" style="margin:0; font-size:13px; color:var(--dim-text);">
+                `;
+                container.appendChild(div);
             });
-            html += `\nTOTAL TIME: ${secToTime(totalSec)}`;
-            document.getElementById('summary-stats').innerText = html;
         }
 
-        function exportData(format) {
+        async function prepareAndSyncToDrive() {
             const notes = document.getElementById('notes-area').value;
+            const now = new Date();
             
-            if (format === 'json') {
-                const payload = {
-                    secret: API_SECRET,
-                    meta: { 
-                        type: "ROX Session", 
-                        date: new Date().toISOString().split('T')[0]
-                    },
-                    reflections: notes,
-                    segments: state.history.map(h => ({
-                        segment: h.segment.name,
-                        type: h.segment.type,
-                        params: h.segment.detail,
-                        duration_sec: Math.round(h.duration),
-                        time: secToTime(h.duration)
-                    }))
+            const editedHistory = state.history.map((h, i) => {
+                const timeStr = document.getElementById(`rev-time-${i}`).value;
+                const d = timeToSec(timeStr);
+                return {
+                    segment: document.getElementById(`rev-name-${i}`).value,
+                    type: h.segment.type,
+                    params: document.getElementById(`rev-detail-${i}`).value,
+                    duration_sec: d,
+                    duration_formatted: secToTime(d)
                 };
-                pushToDrive(payload, 'copy-feedback');
-            } else {
-                const date = new Date().toLocaleDateString('en-GB');
-                const total = state.history.reduce((a,b)=>a+b.duration,0);
-                const safeNotes = notes.replace(/,/g, ';').replace(/\n/g, ' ');
-                const row = [date, secToTime(total), safeNotes];
-                state.history.forEach(h => { 
-                    row.push(h.segment.name); 
-                    row.push(secToTime(h.duration)); 
-                });
-                
-                if (navigator.clipboard) {
-                    navigator.clipboard.writeText(row.join(",")).then(() => {
-                        const fb = document.getElementById('copy-feedback');
-                        fb.innerText = "CSV Copied to Clipboard";
-                        fb.style.backgroundColor = "var(--border-color)";
-                        fb.classList.remove('hidden');
-                        setTimeout(() => fb.classList.add('hidden'), 3000);
-                    });
+            });
+
+            const payload = {
+                secret: API_SECRET,
+                meta: { 
+                    type: "ROX Session", 
+                    date: now.toISOString().split('T')[0],
+                    time_of_day: now.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })
+                },
+                reflections: notes,
+                segments: editedHistory
+            };
+
+            await pushToDrive(payload, 'copy-feedback');
+        }
+
+        function exportToClipboardCSV() {
+            const rows = [["Date", "Time", "Segment", "Duration", "Detail"]];
+            const date = new Date().toISOString().split('T')[0];
+            state.history.forEach((h, i) => {
+                const name = document.getElementById(`rev-name-${i}`).value;
+                const dur = document.getElementById(`rev-time-${i}`).value; 
+                const det = document.getElementById(`rev-detail-${i}`).value;
+                rows.push([date, "N/A", name, dur, det]);
+            });
+            const csvContent = rows.map(e => e.join(",")).join("\n");
+            navigator.clipboard.writeText(csvContent).then(() => {
+                const fb = document.getElementById('copy-feedback');
+                fb.innerText = "CSV Copied!"; fb.classList.remove('hidden');
+                setTimeout(() => fb.classList.add('hidden'), 3000);
+            });
+        }
+
+        // DRIVE PUSH
+        async function pushToDrive(payload, feedbackId) {
+            const fb = document.getElementById(feedbackId);
+            fb.innerText = "Syncing to Google Drive..."; fb.classList.remove('hidden');
+            try {
+                await fetch(API_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) });
+                fb.innerText = "Saved to Google Drive!"; fb.style.backgroundColor = "var(--safe-color)";
+                setTimeout(() => fb.classList.add('hidden'), 3000);
+            } catch (e) {
+                fb.innerText = "Error syncing. Copied backup."; fb.style.backgroundColor = "var(--danger-color)";
+                navigator.clipboard.writeText(JSON.stringify(payload));
+            }
+        }
+
+        async function testAPIConnection() {
+            const fb = document.getElementById('test-feedback');
+            fb.innerText = "Pinging Google Drive..."; fb.classList.remove('hidden');
+            try {
+                const res = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ secret: API_SECRET, isTest: true }), headers: { 'Content-Type': 'text/plain' } });
+                const r = await res.json();
+                fb.innerText = r.status === "success" ? "Google Drive Connected!" : "Auth Failed";
+                fb.style.backgroundColor = r.status === "success" ? "var(--safe-color)" : "var(--danger-color)";
+            } catch (e) { fb.innerText = "Endpoint Unreachable"; fb.style.backgroundColor = "var(--danger-color)"; }
+            setTimeout(() => fb.classList.add('hidden'), 4000);
+        }
+
+        // MANUAL LOG
+        function setTodayDate() { document.getElementById('manual-date').value = new Date().toISOString().split('T')[0]; if (!manualExerciseCount) addExerciseField(); }
+        function toggleManualFields() { 
+            const t = document.getElementById('manual-type').value;
+            document.getElementById('manual-run-fields').classList.toggle('hidden', t !== 'run');
+            document.getElementById('manual-gym-fields').classList.toggle('hidden', t !== 'gym');
+        }
+        function addExerciseField() {
+            const i = manualExerciseCount++, c = document.getElementById('exercise-container');
+            c.insertAdjacentHTML('beforeend', `<div class="exercise-row" id="ex-row-${i}"><label>Exercise ${i+1}</label><input type="text" id="man-gym-name-${i}"><div class="grid-2"><input type="text" id="man-gym-sets-${i}" placeholder="Sets"><input type="text" id="man-gym-reps-${i}" placeholder="Reps"></div><input type="text" id="man-gym-wt-${i}" placeholder="Weight"></div>`);
+        }
+        function generateManualJSON() {
+            const t = document.getElementById('manual-type').value, now = new Date();
+            let d = {};
+            if (t === 'run') d = { distance: document.getElementById('man-run-dist').value, time: document.getElementById('man-run-time').value };
+            else if (t === 'gym') {
+                d.exercises = [];
+                for(let i=0; i<manualExerciseCount; i++) {
+                    const n = document.getElementById(`man-gym-name-${i}`);
+                    if (n && n.value) d.exercises.push({ name: n.value, sets: document.getElementById(`man-gym-sets-${i}`).value, reps: document.getElementById(`man-gym-reps-${i}`).value, weight: document.getElementById(`man-gym-wt-${i}`).value });
                 }
             }
+            pushToDrive({ secret: API_SECRET, meta: { type: "Manual Log", subtype: t, date: document.getElementById('manual-date').value, time_of_day: now.toLocaleTimeString('en-GB') }, reflections: document.getElementById('manual-notes').value, data: d }, 'manual-feedback');
         }
 
-        // --- UTILITY LOGIC ---
-        function showView(id) {
-            document.getElementById('view-menu').classList.add('hidden');
-            document.getElementById('view-designer').classList.add('hidden');
-            document.getElementById('view-tracker').classList.add('hidden');
-            document.getElementById('view-summary').classList.add('hidden');
-            document.getElementById('view-manual').classList.add('hidden');
-            
-            document.getElementById(id).classList.remove('hidden');
-            
-            if(id === 'view-designer') {
-                renderDesignerList();
-            }
-            
-            window.scrollTo(0,0);
-        }
-
-        function saveState() { 
-            if(isResetting) return;
-            try { localStorage.setItem('rox_pro_state', JSON.stringify(state)); } catch(e){} 
-        }
-
-        function resetApp() {
-            if(confirm("Return to main menu? Unsaved data will be cleared.")) {
-                isResetting = true;
-                clearInterval(timerInterval);
-                releaseWakeLock();
-                localStorage.removeItem('rox_pro_state');
-                
-                const currentTemplate = state.template;
-                state = { status: 'idle', history: [], currentIndex: -1, segmentStartTime: null, template: currentTemplate };
-                
-                document.getElementById('manual-notes').value = "";
-                document.getElementById('exercise-container').innerHTML = "";
-                manualExerciseCount = 0;
-                document.getElementById('notes-area').value = "";
-                
-                showView('view-menu');
-                setTimeout(() => isResetting = false, 100);
-            }
-        }
+        // UTILS
+        function showView(v) { ['view-menu', 'view-designer', 'view-tracker', 'view-summary', 'view-manual'].forEach(id => document.getElementById(id).classList.add('hidden')); document.getElementById(v).classList.remove('hidden'); if(v==='view-designer') renderDesignerList(); window.scrollTo(0,0); }
+        async function requestWakeLock() { try { if ('wakeLock' in navigator) wakeLock = await navigator.wakeLock.request('screen'); } catch(e){} }
+        function releaseWakeLock() { if(wakeLock) { wakeLock.release(); wakeLock = null; } }
+        function saveState() { if(!isResetting) try { localStorage.setItem('rox_pro_state', JSON.stringify(state)); } catch(e){} }
+        function resetApp() { if(confirm("Discard data and return home?")) { isResetting = true; clearInterval(timerInterval); releaseWakeLock(); localStorage.removeItem('rox_pro_state'); state = { status: 'idle', history: [], currentIndex: -1, segmentStartTime: null, template: state.template }; showView('view-menu'); setTimeout(()=>isResetting=false, 100); } }
         
-        function checkForSavedWorkout() {
-            const saved = localStorage.getItem('rox_pro_state');
-            if (saved) {
-                try {
-                    const parsed = JSON.parse(saved);
-                    if (parsed.status === 'active') {
-                        state = parsed;
-                        state.segmentStartTime = new Date().getTime(); 
-                        requestWakeLock();
-                        startTimer();
-                        updateTrackerUI();
-                        showView('view-tracker');
-                    } else if (parsed.status === 'finished') {
-                        state = parsed;
-                        renderSummary();
-                        showView('view-summary');
-                    }
-                } catch (e) { localStorage.removeItem('rox_pro_state'); }
-            }
-        }
-        
-        checkForSavedWorkout();
+        const s = localStorage.getItem('rox_pro_state');
+        if (s) { try { const p = JSON.parse(s); if(p.status === 'active') { state = p; state.segmentStartTime = new Date().getTime(); requestWakeLock(); startTimer(); updateTrackerUI(); showView('view-tracker'); } else if(p.status==='finished') { state=p; renderReviewInterface(); showView('view-summary'); } } catch(e){} }
     </script>
 </body>
 </html>
